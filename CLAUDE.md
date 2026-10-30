@@ -1,27 +1,40 @@
-# {{PROJECT_NAME}}
+# W3USR Amplifier Trainer
 
 A project of the **University of Scranton Amateur Radio Club (W3USR)**.
 
 New to this club's repositories? Read [`docs/ONBOARDING.md`](docs/ONBOARDING.md) first.
 
 ## Project Overview
-{{ONE-PARAGRAPH DESCRIPTION: what is being built or written, who it serves, and why the club is doing it.}}
+An interactive training application for the station's **ACOM 1010** HF linear amplifier. It is a
+web app that runs in a phone or desktop browser. It simulates the amplifier's front panel and its
+behavior into the station's actual antennas. It teaches students to tune it and to change bands
+safely, and explains the tube and output-network theory behind each knob as they turn it. It
+tests students before their supervised check-out on the real amplifier and runs timed band-change
+challenges in which only a safe, correct run counts. It is the companion to the club's ACOM 1010
+briefing (`w3usr_antennas/docs/presentations/acom1010_talk/`).
 
-**Project type**: {{Station documentation / Club website / Outreach or demo material / Event or contest operation / Software build / Hardware or antenna build / Grant application / Newsletter, poster, or presentation / Other}}
-**Project lead**: {{NAME, CALLSIGN}}
-**Faculty advisor**: {{NAME, CALLSIGN}}
-**Club license trustee**: {{NAME, CALLSIGN}}
-**Other contributors**: {{NAMES AND CALLSIGNS}}
-**Funder**: {{FUNDER, or "Unfunded / club-internal"}}
-**Project period**: {{START to END}}
+**Project type**: Software build (web application)
+**Project lead**: Nathaniel A. Frissell, W2NAF
+**Faculty advisor**: Nathaniel A. Frissell, W2NAF
+**Club license trustee**: Nathaniel A. Frissell, W2NAF
+**Other contributors**: TBD
+**Funder**: Unfunded / club-internal
+**Project period**: 2026-10-30 to TBD
 
 ## Project Goal
-{{1 to 3 sentences. What does "done" look like?}}
+A student who completes the trainer can tune the ACOM 1010 on every band and antenna the station
+uses and recognize and respond to each protection condition. That student is ready for a short
+supervised check-out on the real amplifier. The simulator's tuning behavior matches the real
+amplifier, as measured on the W3USR installation.
+
+The requirements are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).
 
 ## Repository Visibility
 
-**This repository is: {{PUBLIC | PRIVATE}}**, decided by {{NAME}} on {{YYYY-MM-DD}}.
-**Reason**: {{REASON}}
+**This repository is: PRIVATE**, decided by Nathaniel A. Frissell, W2NAF, on 2026-10-30.
+**Reason**: It draws on the ACOM 1010 manual and other third-party documents carried by the
+private `w3usr_antennas` submodule, and the design is not yet settled. Revisit before any public
+release. The simulator code itself contains nothing that requires privacy.
 
 This template sets no default. Decide deliberately at instantiation and record the decision
 above, because the answer changes what may be committed.
@@ -69,31 +82,36 @@ is fine. Aggregating a member's callsign with their address, schedule, or dorm i
 
 ## Repository Structure
 
-This project starts from the W3USR `ai_project_template` scaffold. Add or remove top-level
-directories to match the project. The scaffold expects:
+Instantiated from the W3USR `ai_project_template` scaffold. Current layout:
 
 ```
-{{REPO_NAME}}/
+w3usr_amp_trainer/
 |-- CLAUDE.md
 |-- README.md
-|-- LICENSE                       <- replace with the project's own; see README
-|-- NOTICE                        <- copyright and attribution
+|-- NOTICE                        <- copyright; no LICENSE yet (all rights reserved)
 |-- .gitignore
-|-- .gitmodules                   <- present only if you add submodules
+|-- .gitmodules
 |-- .claude/
-|   |-- settings.json
-|   |-- commands/commit.md        <- /commit workflow
+|   |-- settings.json             <- registers the session-start template check
+|   |-- template.json             <- which template commit was last adopted
+|   |-- commands/                 <- /commit and /template-sync workflows
+|   |-- hooks/template_check.sh
 |   `-- rules/
 |       |-- ai-governance.md          <- always applies
-|       |-- web-development.md        <- delete if no web work
-|       |-- latex-writing.md          <- delete if no LaTeX
-|       `-- python-code.md            <- delete if no Python
+|       |-- simulator-fidelity.md     <- this project's constraints; always applies
+|       |-- web-development.md
+|       `-- python-code.md            <- for calibration and data tooling
 |-- ai/
 |   `-- ai_usage_log.md           <- mandatory AI session log
 |-- docs/
 |   |-- ONBOARDING.md             <- read this first
+|   |-- REQUIREMENTS.md           <- what the trainer must do; start here
 |   `-- ai_policy_agreement/      <- sign before using AI tools
-`-- {{PROJECT-SPECIFIC FOLDERS}}  <- e.g. src/, station/, web/, outreach/, logs/, hardware/
+`-- w3usr_antennas/               <- submodule: antenna system, ACOM 1010 manual, tube datasheets
+```
+
+The application source tree (`app/`, `model/`, calibration data) is added when the
+technology decisions in `docs/REQUIREMENTS.md` are made.
 ```
 
 ## Curated Documents
@@ -159,11 +177,16 @@ One thing is non-negotiable: **every substantive AI session is logged in
 `ai/ai_usage_log.md` before the work is committed.** Use the `/commit` command, which does the
 logging and committing in the right order.
 
-{{If this project has constraints of its own that AI work must respect, write them into a
-rule file under `.claude/rules/` and name it here.}}
+This project's own constraints are in `.claude/rules/simulator-fidelity.md`. In short:
+- **No fabricated physics.** Every physical value in the simulator carries its source
+  (manual, datasheet, a measurement on the W3USR station), or is marked as a placeholder. Uncalibrated
+  values are allowed, and so are placeholder values, but neither may be presented as real.
+- **The manual governs procedure.** Training content never teaches a step that contradicts the
+  ACOM 1010 manual.
+- **The simulator does not authorize operation.** Passing it makes a student eligible for a
+  supervised check-out on the real amplifier, and nothing more.
 
 ## Getting Help
 
-- Club questions, station access, on-air activity: {{ADVISOR OR TRUSTEE NAME, CALLSIGN, CONTACT}}
-- This repository: {{PROJECT LEAD NAME, CALLSIGN}}
-- Club meeting time and place: {{WHEN AND WHERE}}
+- Club questions, station access, on-air activity: Nathaniel A. Frissell, W2NAF
+- This repository: Nathaniel A. Frissell, W2NAF

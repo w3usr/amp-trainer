@@ -54,18 +54,8 @@ Applies to club work connected to an NSF-funded effort.
   authorized
 - Do not submit confidential or unpublished data to AI tools
 
-### 5. Grant Funders (ARDC and others)
-{{If this project is supported by a grant, name the funder and the grant number here, and
-record any AI-use terms the award carries. Amateur Radio Digital Communications (ARDC) is the
-most common source for club equipment and project grants; university sources include
-{{STUDENT GOVERNMENT / DEPARTMENT / OFFICE}}.
-
-Whatever the source: acknowledge the funder by name and grant number in every deliverable,
-report honestly on what was accomplished, and disclose AI-assisted content per the award's
-terms. If the award says nothing about AI, disclose anyway.
-
-If the project is unfunded, replace this section with: "This project has no external funder
-beyond the standing institutional policies above."}}
+### 5. Grant Funders
+This project has no external funder beyond the standing institutional policies above.
 
 ### 6. Student Privacy (FERPA)
 Never send student records to an AI tool or commit them to a repository: grades, evaluations,
@@ -74,9 +64,10 @@ student ID to a name. A club membership list with names and callsigns is ordinar
 business; a list that pulls in student IDs, addresses, or class schedules is not.
 
 ### 7. Project-Specific Constraints
-{{A project may carry obligations this file does not cover. Where it does, write them into
-their own rule file under `.claude/rules/` and name it in the project's `CLAUDE.md`. Delete
-this section if there are none.}}
+This project's own constraints are in `.claude/rules/simulator-fidelity.md`: every physical
+value the simulator uses carries its source or is marked as a placeholder, the training content
+never teaches a procedure that contradicts the ACOM 1010 manual, and passing the simulator
+never by itself authorizes anyone to operate the real amplifier.
 
 ## AI Usage Logging Requirements
 
