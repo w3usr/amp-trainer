@@ -48,4 +48,4 @@ carries the actual running model ID.
   and the dial scales and band positions from the W3USR front-panel photo, not from memory. The
   hosting options draw on w3usr.org-PRIVATE/deploy/README.md and ARCOps docs/REQUIREMENTS.md.
 - **Human Review Status**: Pending review
-- **Git Hash**: [filled in after committing]
+- **Git Hash**: 4841053 (PR w3usr/w3usr_amp_trainer#1)
