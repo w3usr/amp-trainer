@@ -76,4 +76,4 @@ carries the actual running model ID.
   stacked on phones as name, value and source over the note; band inductances on two lines)
 - **Nature of Contribution**: Code generation (CSS and page script)
 - **Human Review Status**: Pending review (reported by W2NAF from a phone screenshot of the live site)
-- **Git Hash**: [filled in after committing]
+- **Git Hash**: c414863 (PR w3usr/amp-trainer#3)
