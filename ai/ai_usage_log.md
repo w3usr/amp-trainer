@@ -92,4 +92,4 @@ carries the actual running model ID.
   §4.5, §4.5a, §4.5c, Fig. 4-1, §4.6, §5, §5.5, §6.1c, §6.1e); figure values computed with the
   trainer's model and labeled as placeholders; chart colors run through the dataviz palette validator.
 - **Human Review Status**: Pending review
-- **Git Hash**: [filled in after committing]
+- **Git Hash**: 1d3009e (PR w3usr/amp-trainer#4)
