@@ -1,120 +1,40 @@
-# W3USR AI Project Template
+# W3USR Amplifier Trainer
 
-A starter scaffold for AI-assisted projects of the **University of Scranton Amateur Radio
-Club (W3USR)**.
+A training simulator for the **ACOM 1010** HF linear amplifier at **W3USR**, the University of
+Scranton Amateur Radio Club station. It runs in a phone or desktop browser and lets students:
 
-The template does two things:
+- **learn**: tune the amplifier into the station's real antennas, with the tube and
+  output-network theory shown live as the knobs turn;
+- **qualify**: pass a scenario test that makes them eligible for a supervised check-out on
+  the real amplifier;
+- **compete**: race band changes against the clock, where only a safe, correct run counts.
 
-1. Keeps club work compliant with University of Scranton, HamSCI, NASA, NSF, and grant-funder
-   policies on generative AI, through a mandatory session log and a `/commit` workflow that
-   enforces it.
-2. Gives new club members a fifteen-minute on-ramp in [`docs/ONBOARDING.md`](docs/ONBOARDING.md),
-   starting with the Generative AI Use Agreement they sign before using AI tools, so they can
-   contribute without having used git or Claude Code before.
+**Status:** requirements drafting. See [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).
 
-The same scaffold supports:
+> The simulator is a training aid. Passing it does not authorize anyone to operate the station.
 
-- **Software projects**: log tools, propagation analysis, satellite tracking, dashboards, rig control
-- **Web projects**: the club website, event pages, outreach material
-- **Writing projects**: papers, posters, grant applications, reports, newsletters, typically
-  with an `overleaf/` submodule
-- **Station and hardware projects**: antenna builds, station documentation, equipment records
-- **Mixed projects**: any combination
-
-## Use as a GitHub Template
+## Getting started
 
 ```bash
-gh repo create w3usr/my-new-project --template w3usr/ai_project_template --clone
+git clone --recurse-submodules git@github.com:w3usr/w3usr_amp_trainer.git
 ```
 
-Add `--public` or `--private` to that command deliberately; see step 2 below. You can also
-click **Use this template** on the GitHub repository page.
+Already cloned without submodules? `git submodule update --init`
 
-## After Instantiation
+New to the club's repositories? Read [`docs/ONBOARDING.md`](docs/ONBOARDING.md), and sign the AI
+use agreement in [`docs/ai_policy_agreement/`](docs/ai_policy_agreement/) before any AI-assisted
+work.
 
-1. **Replace placeholders.** Search the repo for `{{` and replace every `{{PLACEHOLDER}}` in
-   `CLAUDE.md`, `.claude/rules/ai-governance.md`, and `ai/ai_usage_log.md`:
-   ```bash
-   grep -rn '{{' . --exclude-dir=.git
-   ```
-   Common ones: `{{PROJECT_NAME}}`, `{{PROJECT_TITLE}}`, `{{REPO_NAME}}`, `{{PROJECT_PERIOD}}`,
-   the project lead, the advisor, the trustee, and `{{FUNDER}}`.
+## Where things are
 
-   Then clear `ai/ai_usage_log.md` of every entry below its append marker. Those entries
-   belong to the template repository, and the new project's log starts empty.
-
-2. **Decide the repository's visibility and record it.** `CLAUDE.md` has a section for this
-   with criteria and a place for the decision, the date, and the reason. This template sets no
-   default, because the answer changes what may be committed. Decide it before the first
-   commit rather than after.
-
-3. **Prune the rule files that do not apply.**
-   ```bash
-   rm .claude/rules/web-development.md   # no web work
-   rm .claude/rules/latex-writing.md     # no LaTeX
-   rm .claude/rules/python-code.md       # no Python
-   ```
-   `ai-governance.md` stays in every club project.
-
-   Projects with needs of their own add their own rule file. A station or on-air project,
-   for instance, is the right place to write down its operating constraints, because those
-   constraints depend on the project.
-
-4. **Replace the `LICENSE`.** The template itself is CC BY 4.0; an instantiated project
-   picks its own. Software the club wants others to reuse: MIT or BSD-3-Clause.
-   Documentation and outreach material: CC BY 4.0. Ask the advisor if the work is
-   grant-funded, since some awards carry licensing terms.
-
-5. **Add the project's own top-level folders**, e.g. `src/`, `web/`, `station/`, `outreach/`,
-   `hardware/`, `logs/`, `manuscript/`.
-
-6. **Add submodules if needed.**
-   ```bash
-   git submodule add https://git.overleaf.com/<id> overleaf
-   git submodule add git@github.com:w3usr/<repo>.git <path>
-   ```
-
-7. **Point new members at [`docs/ONBOARDING.md`](docs/ONBOARDING.md)** before their first
-   commit.
-
-### Record which template commit you started from
-
-`.claude/template.json` arrives describing this template. Turn it into a project record: set
-`"role": "project"`, `"upstream": "w3usr/ai_project_template"`, `"upstream_branch": "main"`, `"synced_commit"` to the
-template commit you instantiated from (the tip of `main` that day), and `"synced_on"`; list in
-`"customized"` the files whose placeholders you filled in, and in `"not_adopted"` any template
-files you deleted; remove `repo` and `siblings`. From then on, a session-start check reports when
-this template changes and `/template-sync` adopts the changes. If you skip this step, the first
-Claude session notices and offers to do it.
-
-## What This Template Provides
-
-| Path | Purpose |
+| Path | What |
 |---|---|
-| `CLAUDE.md` | Project instructions Claude Code reads automatically, with placeholders, the visibility decision, and the never-commit list |
-| `docs/ONBOARDING.md` | Student-facing on-ramp: the signing gate, the things that matter, a first-fifteen-minutes checklist, the working loop, and who to ask |
-| `docs/ai_policy_agreement/` | The HamSCI Generative AI Use Agreement, signed before a member uses AI tools on a club project |
-| `.claude/rules/ai-governance.md` | Scranton, HamSCI, NASA, NSF, and grant-funder AI policy; logging requirements; disclosure table; FERPA |
-| `.claude/rules/web-development.md` | Content accuracy, University identity, accessibility, secrets, workflow |
-| `.claude/rules/latex-writing.md` | Citation integrity, crediting students and funders, figures, build hygiene |
-| `.claude/rules/python-code.md` | Code standards, data handling, commit workflow |
-| `.claude/commands/commit.md` | The `/commit` slash command: logs the AI session, then commits each changed repo (submodules first) on a feature branch and opens a pull request for the project lead to review and merge |
-| `ai/ai_usage_log.md` | Append-only log of every substantive AI-assisted session |
-| `.gitignore` | Build artifacts, secrets, and bulk data for Python, LaTeX, and web projects |
-| `LICENSE`, `NOTICE` | CC BY 4.0, covering the scaffold itself. Replace both with the project's own license. |
+| [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) | What the trainer must do, its fidelity targets, and the open decisions |
+| [`w3usr_antennas/`](w3usr_antennas/) | Submodule: the station's antenna system, the ACOM 1010 manual, tube datasheets, the club briefing |
+| [`.claude/rules/simulator-fidelity.md`](.claude/rules/simulator-fidelity.md) | Sourcing, calibration and safety rules for the simulator |
+| [`ai/ai_usage_log.md`](ai/ai_usage_log.md) | Log of AI-assisted work on this project |
 
-## The Non-Negotiable
+## AI assistance
 
-Every project from this template inherits one rule that does not bend:
-
-**Every substantive AI session is logged before the work is committed.** Run `/commit`.
-
-Everything else in here exists to make that easy to follow.
-
-## Maintaining This Template
-
-Improvements go back into `w3usr/ai_project_template` so the next project starts from them.
-A change that turns out to matter for one project usually matters for all of them: a rule that
-was ambiguous, a placeholder nobody knew how to fill, a step in onboarding that lost someone.
-
-73 de W3USR
+This repository contains AI-assisted work, reviewed by club members; `ai/ai_usage_log.md` is
+the record.

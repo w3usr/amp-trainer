@@ -1,20 +1,12 @@
-W3USR AI Project Template
+W3USR Amplifier Trainer
 Copyright (c) 2026 University of Scranton Amateur Radio Club (W3USR)
+All rights reserved.
 
-Licensed under the Creative Commons Attribution 4.0 International License
-(CC BY 4.0). See LICENSE for the full text, or
-https://creativecommons.org/licenses/by/4.0/
+No license has been chosen for this repository yet; until one is, no permission to copy,
+modify or distribute is granted. Revisit before any public release.
 
-You are free to share and adapt this scaffold, including for other clubs
-and institutions, provided you give appropriate credit.
+The repository scaffold derives from the W3USR AI Project Template,
+https://github.com/w3usr/ai_project_template, licensed CC BY 4.0.
 
-Attribute as:
-  W3USR AI Project Template, University of Scranton Amateur Radio Club,
-  https://github.com/w3usr/ai_project_template
-
-This license covers the template scaffold itself. A project instantiated
-from this template chooses its own license and replaces LICENSE and NOTICE
-accordingly (see README step 4).
-
-Portions of this scaffold derive from the W2NAF academic project template
-by Nathaniel A. Frissell (W2NAF), University of Scranton.
+The ACOM 1010 User's Manual and the 4CX800A/GU74B tube data are third-party documents. They
+are not part of this repository; they are carried by the w3usr_antennas submodule.

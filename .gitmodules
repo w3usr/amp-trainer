@@ -1,0 +1,3 @@
+[submodule "w3usr_antennas"]
+	path = w3usr_antennas
+	url = git@github.com:w3usr/w3usr_antennas.git

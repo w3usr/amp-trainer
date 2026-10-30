@@ -1,14 +1,9 @@
 {
-  "role": "template",
-  "repo": "w3usr/ai_project_template",
-  "siblings": {
-    "w2naf-academia/ai_project_template": {
-      "branch": "main",
-      "reviewed_commit": "6a98cd20d767c564b2964b782ba1e8c4cf8bd0de"
-    },
-    "HamSCI/ai_project_template": {
-      "branch": "main",
-      "reviewed_commit": "d4a133e51e30457f0b8bd046fc31b57275e21eb8"
-    }
-  }
+  "role": "project",
+  "upstream": "w3usr/ai_project_template",
+  "upstream_branch": "main",
+  "synced_commit": "6659df5f82257c649d7a6ff5f112afa8aaba9676",
+  "synced_on": "2026-10-30",
+  "customized": ["CLAUDE.md", ".claude/rules/ai-governance.md", "ai/ai_usage_log.md"],
+  "not_adopted": ["README.md", "LICENSE", "NOTICE", ".claude/rules/latex-writing.md"]
 }
