@@ -66,4 +66,4 @@ carries the actual running model ID.
   edit (licensing, visibility and requirements documents)
 - **Human Review Status**: Pending review (the visibility, URL and license decisions are
   W2NAF's; the prototype was exercised by W2NAF on a phone in published versions 1 to 7)
-- **Git Hash**: [filled in after committing]
+- **Git Hash**: e25d427 (PR w3usr/amp-trainer#2)
