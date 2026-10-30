@@ -67,3 +67,13 @@ carries the actual running model ID.
 - **Human Review Status**: Pending review (the visibility, URL and license decisions are
   W2NAF's; the prototype was exercised by W2NAF on a phone in published versions 1 to 7)
 - **Git Hash**: e25d427 (PR w3usr/amp-trainer#2)
+
+## [2026-10-30 23:00 UTC]
+- **Tool**: Claude (Anthropic), claude-opus-5-5
+- **Session Purpose**: Fix the model-parameters table on phones, where four squeezed columns made
+  every row a screen tall and the table pushed its card wider than the screen.
+- **Sections/Files Affected**: app/page.html (cards limited to the screen width; parameter rows
+  stacked on phones as name, value and source over the note; band inductances on two lines)
+- **Nature of Contribution**: Code generation (CSS and page script)
+- **Human Review Status**: Pending review (reported by W2NAF from a phone screenshot of the live site)
+- **Git Hash**: [filled in after committing]
