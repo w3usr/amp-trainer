@@ -415,6 +415,6 @@ const AmpModel = (() => {
     }
   }
 
-  return { P, V, BANDS, POSITIONS, LOADS, MSG, bandOf, preset, solve, bestDials, optimumC, tuneC, loadC, parseS1P, swrOf, gammaOf, Sim, cx, mag, inv };
+  return { P, V, BANDS, POSITIONS, LOADS, MSG, bandOf, preset, network, solve, bestDials, optimumC, tuneC, loadC, parseS1P, swrOf, gammaOf, Sim, cx, mag, inv };
 })();
 if (typeof module !== 'undefined') module.exports = AmpModel;

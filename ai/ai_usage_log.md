@@ -77,3 +77,19 @@ carries the actual running model ID.
 - **Nature of Contribution**: Code generation (CSS and page script)
 - **Human Review Status**: Pending review (reported by W2NAF from a phone screenshot of the live site)
 - **Git Hash**: c414863 (PR w3usr/amp-trainer#3)
+
+## [2026-10-30 23:59 UTC]
+- **Tool**: Claude (Anthropic), claude-opus-5-5
+- **Session Purpose**: Add three beginner tutorials linked from the trainer: the Smith chart and the
+  Pi network in the context of the ACOM 1010 (requested to assume no prior knowledge), and every
+  fault, trip and operator mistake.
+- **Sections/Files Affected**: new app/smith-chart.html, app/pi-network.html, app/faults.html,
+  app/tutorial.css, app/tutorial.js; app/page.html (links from the Inside-the-amplifier figures
+  and the Events card); model/model.js (exports network); scripts/build.mjs (multi-page site);
+  CLAUDE.md and README.md (layout).
+- **Nature of Contribution**: Draft (tutorial text) and code generation (interactive figures).
+  Manual facts checked against the ACOM 1010 User's Manual (§1.3, §3.2h, §3.2j, §4.2, §4.3, §4.4,
+  §4.5, §4.5a, §4.5c, Fig. 4-1, §4.6, §5, §5.5, §6.1c, §6.1e); figure values computed with the
+  trainer's model and labeled as placeholders; chart colors run through the dataviz palette validator.
+- **Human Review Status**: Pending review
+- **Git Hash**: [filled in after committing]

@@ -26,7 +26,7 @@ Run the model's acceptance tests and build the page (Node 18 or later, no other 
 
 ```bash
 node model/test.js
-node scripts/build.mjs        # writes dist/index.html; open it in a browser
+node scripts/build.mjs        # writes the site to dist/; open dist/index.html in a browser
 ```
 
 Every merge to `main` runs the same tests and publishes the page to GitHub Pages.
@@ -40,6 +40,7 @@ work.
 | Path | What |
 |---|---|
 | [`app/page.html`](app/page.html) | The trainer's page: front panel, transceiver, procedure, theory views |
+| [`app/*.html`](app/) | Tutorials: [the Smith chart](https://w3usr.github.io/amp-trainer/smith-chart.html), [the Pi network](https://w3usr.github.io/amp-trainer/pi-network.html), [faults and trips](https://w3usr.github.io/amp-trainer/faults.html) |
 | [`model/`](model/) | The physics model with every value's source, and its acceptance tests |
 | [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) | What the trainer must do, its fidelity targets, and the open decisions |
 | [`.claude/rules/simulator-fidelity.md`](.claude/rules/simulator-fidelity.md) | Sourcing, calibration and safety rules for the simulator |

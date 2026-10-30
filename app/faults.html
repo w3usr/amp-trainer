@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Every warning, protection trip and operator mistake on the ACOM 1010: what the panel shows, what it means, and what to do.">
+<title>Faults and Trips · ACOM 1010 Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Saira+Semi+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="tutorial.css">
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Back to the ACOM 1010 Trainer</a>
+  <header style="display:grid;gap:10px">
+    <p class="eyebrow">ACOM 1010 Trainer · Tutorial</p>
+    <h1>Faults and protection trips</h1>
+    <p class="lede">The ACOM 1010 watches its own currents, its reflected power and its tuning, and steps in before damage is done. This page explains every warning and trip: <strong>what the panel shows</strong>, <strong>what it means</strong>, and <strong>what to do</strong>. It also covers the operator mistakes the amplifier cannot always catch for you.</p>
+    <nav class="toc" aria-label="On this page">
+      <a href="#levels">1. Two levels</a><a href="#quick">2. Quick reference</a><a href="#each">3. Each indication</a><a href="#swr">4. SWR and power</a><a href="#mistakes">5. Operator mistakes</a><a href="#after">6. After a trip</a><a href="#trainer">7. In the trainer</a>
+    </nav>
+  </header>
+
+  <h2 id="levels">1. Two levels of protection</h2>
+  <p>When the amplifier detects an abnormal condition, its controller weighs the risk and applies one of two degrees of protection (Manual §4.6):</p>
+  <ul>
+    <li><strong>A warning.</strong> A yellow LED lights: <strong>G1</strong> (control grid), <strong>G2</strong> (screen grid) or <strong>IP</strong> (plate current). You may keep operating, but a trip is likely to follow. Treat it as a request to back off now.</li>
+    <li><strong>A trip.</strong> The red <strong>F</strong> (fault) LED lights, the green OPER LED goes off, and the amplifier drops to STANDBY for several seconds. Other LEDs say why. Then <strong>AUTO-OPERATE</strong> returns it to OPERATE by itself (Manual §4.2).</li>
+  </ul>
+  <p>The automatic return is a convenience, not permission to carry on. If it trips repeatedly, stop and find the cause, which is usually too much drive or an antenna mismatch (Manual §4.6).</p>
+
+  <h2 id="quick">2. Quick reference</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>You see</th><th>It means</th><th>Do this</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag warn">G1</span> yellow</td><td>Control-grid overload</td><td>Reduce drive</td></tr>
+        <tr><td><span class="tag warn">G2</span> yellow</td><td>Screen-grid overload</td><td>Reduce drive and/or retune</td></tr>
+        <tr><td><span class="tag warn">IP</span> yellow</td><td>Plate-current overload</td><td>Reduce drive and/or retune</td></tr>
+        <tr><td><span class="tag trip">F</span> + G1, G2 or IP</td><td>Tripped on that current</td><td>Unkey; reduce drive or retune</td></tr>
+        <tr><td><span class="tag trip">F</span> + last red RFL LED</td><td>Reflected power reached the limit</td><td>Reduce drive or improve the antenna SWR</td></tr>
+        <tr><td><span class="tag trip">F</span> + all three TRI flashing</td><td>Tuning wrong, or the antenna changed</td><td>Retune (Manual §4.5)</td></tr>
+        <tr><td><span class="tag trip">F</span> alone</td><td>Tripped, cause not shown</td><td>Check the keying cable (KEY-IN)</td></tr>
+        <tr><td><span class="tag stop">ALL</span> bar-graph LEDs flashing</td><td>Serious fault</td><td><strong>Switch the amplifier off immediately</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">From Manual §3.2j and §4.6. The yellow and red LEDs sit at the right-hand end of the RFL bar-graph; the TRI is the three LEDs above the LOAD knob.</p>
+
+  <h2 id="each">3. Each indication</h2>
+
+  <section class="fault" id="g1">
+    <h3><span class="tag warn">G1</span> Control-grid overload <small>Manual §3.2j</small></h3>
+    <div class="panel" data-panel='{"fwd":15,"rfl":1,"g1":"on","tri":"C"}'></div>
+    <dl>
+      <dt>What it is</dt><dd>The tube's control grid, the electrode the drive signal goes to, is drawing current. In this amplifier it should draw almost none. Grid current means the drive has pushed the grid past the point the tube is designed for.</dd>
+      <dt>Usual cause</dt><dd>Too much drive from the transceiver. About 60 W gives rated output (Manual §1.3), and anything well beyond that only overdrives the tube.</dd>
+      <dt>Do this</dt><dd>Reduce the drive power (Manual §3.2j).</dd>
+      <dt>If it trips</dt><dd>F and G1 light together, and the amplifier goes to STANDBY for several seconds.</dd>
+    </dl>
+  </section>
+
+  <section class="fault" id="g2">
+    <h3><span class="tag warn">G2</span> Screen-grid overload <small>Manual §3.2j</small></h3>
+    <div class="panel" data-panel='{"fwd":13,"rfl":1,"g2":"on","tri":"L"}'></div>
+    <dl>
+      <dt>What it is</dt><dd>The 4CX800A is a tetrode: between its control grid and its plate is a second grid, the screen, held at a few hundred volts. When the plate's voltage swing comes down close to the screen voltage, the screen starts catching electrons meant for the plate. Its current climbs fast, and the screen has only a small power rating.</dd>
+      <dt>Usual cause</dt><dd>Too much drive, or tuning that leaves the plate-load resistance too high, so the plate swing runs out of room. That is LOAD too far to the left, with the TRI showing left.</dd>
+      <dt>Do this</dt><dd>Reduce drive and/or retune: peak FWD with TUNE and center the TRI with LOAD (Manual §3.2j, §4.5).</dd>
+      <dt>If it trips</dt><dd>F and G2 light together.</dd>
+    </dl>
+  </section>
+
+  <section class="fault" id="ip">
+    <h3><span class="tag warn">IP</span> Plate-current overload <small>Manual §3.2j</small></h3>
+    <div class="panel" data-panel='{"fwd":15,"rfl":1,"ip":"on","tri":"R"}'></div>
+    <dl>
+      <dt>What it is</dt><dd>The tube is drawing more plate current than it should. More current means more power in and more heat in the tube.</dd>
+      <dt>Usual cause</dt><dd>Too much drive, or tuning that leaves the plate-load resistance too low (LOAD too far right, TRI showing right). The manual's service checks expect no more than about 600 mA in SSB and CW (Manual §5.6).</dd>
+      <dt>Do this</dt><dd>Reduce drive and/or retune (Manual §3.2j, §4.5).</dd>
+      <dt>If it trips</dt><dd>F and IP light together.</dd>
+    </dl>
+  </section>
+
+  <section class="fault" id="rfl">
+    <h3><span class="tag trip">F</span> + RFL Reflected-power trip <small>Manual §4.5a, §4.6</small></h3>
+    <div class="panel" data-panel='{"fwd":11,"rfl":8,"rflFlash":true,"f":"on","tri":"C"}'></div>
+    <dl>
+      <dt>What it is</dt><dd>Too much power is coming back from the antenna system. The amplifier is safe only while reflected power stays below 250 W (Manual §4.5a). When it gets there, the last red LED of the RFL bar and the F LED light.</dd>
+      <dt>Usual cause</dt><dd>An antenna mismatch at high power: the wrong antenna selected for the band, an antenna not built for the band, a damaged antenna or feedline, or ice and wind changing the antenna. Section 4 shows how SWR limits power.</dd>
+      <dt>Do this</dt><dd>Reduce drive, or improve the antenna's SWR (Manual §4.6). Check A1-A2 is right for the band: A1 for 10, 15 and 20 m, A2 for 40 and 80 m at W3USR. Retuning the amplifier does <em>not</em> fix SWR (see the <a href="smith-chart.html#reading">Smith chart tutorial</a>).</dd>
+    </dl>
+  </section>
+
+  <section class="fault" id="tri">
+    <h3><span class="tag trip">F</span> + TRI flashing Tuning trip <small>Manual §4.6</small></h3>
+    <div class="panel" data-panel='{"fwd":0,"rfl":0,"f":"on","tri":"flash"}'></div>
+    <dl>
+      <dt>What it is</dt><dd>All three TRI LEDs flash together with F. The amplifier has judged that the tuning is not adjusted correctly, or that the antenna's impedance has changed, and it is not safe to keep driving the tube that way.</dd>
+      <dt>Usual cause</dt><dd>Driving hard before tuning, a BAND switch that does not match the transceiver's band, knobs far from the Table 4-1 presets, or an antenna that changed (a different antenna selected, weather, a fault).</dd>
+      <dt>Do this</dt><dd>Retune at low drive (Manual §4.5): check BAND and the antenna, preset from Table 4-1, then 10–20 W key-down, peak FWD with TUNE and center the TRI with LOAD. The <a href="pi-network.html">Pi network</a> and <a href="smith-chart.html#tuning">Smith chart</a> tutorials explain what the knobs are doing.</dd>
+    </dl>
+  </section>
+
+  <section class="fault" id="falone">
+    <h3><span class="tag trip">F</span> alone <small>Manual §3.2j</small></h3>
+    <div class="panel" data-panel='{"fwd":0,"rfl":0,"f":"on"}'></div>
+    <dl>
+      <dt>What it is</dt><dd>A trip with none of the cause LEDs lit.</dd>
+      <dt>Do this</dt><dd>Check the keying wiring from the transceiver to the amplifier's KEY-IN connector (Manual §3.2j, §2.4d).</dd>
+    </dl>
+  </section>
+
+  <section class="fault" id="allflash">
+    <h3><span class="tag stop">STOP</span> All bar-graph LEDs flashing <small>Manual §4.6</small></h3>
+    <div class="panel" data-panel='{"all":"flash"}'></div>
+    <dl>
+      <dt>What it is</dt><dd>A serious fault inside the amplifier.</dd>
+      <dt>Do this</dt><dd><strong>Switch the amplifier off immediately</strong> to avoid damage (Manual §4.6), and tell the station trustee. Do not open the amplifier: it holds up to 3,000 V, which is lethal. The manual requires unplugging it and waiting at least 30 minutes before the cover comes off (Manual §5); leave that to a trained technician.</dd>
+    </dl>
+  </section>
+
+  <h2 id="swr">4. How SWR limits your power</h2>
+  <p>The reflected fraction depends only on the SWR (see the <a href="smith-chart.html#reading">Smith chart tutorial</a>). Since reflected power must stay under 250 W, the SWR sets the most forward power you can run. The manual's examples: at 2.5:1, 800 W forward comes with 150 W reflected; at 5:1, the most forward power you can get is about 540 W, with 240 W reflected and only 300 W reaching the antenna system (Manual §4.5a).</p>
+  <figure>
+    <h3>Figure 1. Most forward power before reflected power reaches 250 W</h3>
+    <svg class="plot" id="swrPlot" role="img" aria-label="Maximum forward power falling as SWR rises: unlimited at low SWR, about 1000 watts at 3 to 1 and about 560 watts at 5 to 1"></svg>
+    <figcaption>Forward power at which reflected power reaches 250 W, by SWR: 250 W divided by the reflected fraction. The dashed line is the amplifier's rated 700 W PEP (Manual §1.1). Below about 4:1 the reflected-power limit is above rated power and the limit does not bite. The manual guarantees a match only up to 3:1; past that, matching may still be possible, but only at reduced drive (Manual §4.5a). Hover or touch for values.</figcaption>
+  </figure>
+
+  <h2 id="mistakes">5. Operator mistakes the trips do not cover</h2>
+  <p>Some mistakes damage the amplifier without any trip to warn you. They are the operator's responsibility, and the trainer treats each one as unsafe: in a band-change sprint, any of them disqualifies the run.</p>
+  <section class="fault">
+    <h3><span class="tag">Never</span> Turning BAND while transmitting <small>Manual §3.2h</small></h3>
+    <p>Hot switching will eventually destroy the band switch, and the warranty does not cover it. Unkey first, every time.</p>
+  </section>
+  <section class="fault">
+    <h3><span class="tag">Never</span> Pressing A1-A2 while transmitting <small>Manual §4.4</small></h3>
+    <p>Changing antennas while transmitting can cause damage the warranty does not cover (Manual §4.4). Select the antenna before you key.</p>
+  </section>
+  <section class="fault">
+    <h3><span class="tag">Never</span> Pressing RTTY while transmitting <small>Manual §4.3</small></h3>
+    <p>Change to or from RTTY mode, or any other mode, only between transmissions. RTTY mode itself needs no retuning; it limits output to 500 W for continuous-duty modes.</p>
+  </section>
+  <section class="fault">
+    <h3><span class="tag">Never</span> More than one minute of continuous drive while tuning <small>Manual §4.5</small></h3>
+    <p>Key down for at most a minute, then pause at least a minute so the tube can cool. The trainer's transmit button shows a timer and turns amber after 45 seconds.</p>
+  </section>
+  <section class="fault">
+    <h3><span class="tag">Never</span> Transmitting with no antenna or dummy load connected <small>Manual §4.4</small></h3>
+    <p>Do not transmit into an antenna output unless it is connected by suitable coax to an antenna or a dummy load. An open output reflects nearly everything; try "Open coax" in the <a href="smith-chart.html">Smith chart tutorial</a>.</p>
+  </section>
+  <section class="fault">
+    <h3><span class="tag">Wait</span> Transmitting during warm-up <small>Manual §4.1</small></h3>
+    <p>For about 150 seconds after power-on, the OPER LED flashes and the amplifier stays in STANDBY. The drive then passes straight through to the antenna at transceiver power. It does no harm, but nothing is being amplified yet, and it is not tuning. Wait for a steady OPER LED.</p>
+  </section>
+
+  <h2 id="after">6. After a trip</h2>
+  <ol>
+    <li><strong>Unkey.</strong> Stop transmitting.</li>
+    <li><strong>Read the panel</strong> while the fault is still shown: which LED is lit with F? Fault information stays up for several seconds (Manual §4.6).</li>
+    <li><strong>Fix the cause</strong> before keying again: less drive, the right antenna, the right band, or a retune at 10–20 W.</li>
+    <li><strong>Let AUTO-OPERATE bring it back.</strong> The OPER LED comes back on by itself (Manual §4.2).</li>
+    <li><strong>If it trips again, stop.</strong> Repeated trips mean the cause is still there. Ask the station trustee before going on.</li>
+  </ol>
+
+  <h2 id="trainer">7. In the trainer</h2>
+  <p>The trainer simulates the G1, G2, IP, RFL and tuning trips, the warning LEDs, STANDBY and AUTO-OPERATE, and flags each mistake in section 5. It does not simulate F alone or the all-LEDs-flashing fault. Its thresholds are below, read live from the model. Where the manual gives a number, the trainer uses it. The rest are placeholders until the club calibrates the model against the real amplifier, so do not treat them as the ACOM's actual limits.</p>
+  <div class="tablewrap"><table><thead><tr><th>Threshold</th><th>Value</th><th>Source</th></tr></thead><tbody id="thr"></tbody></table></div>
+  <p class="note">The trainer also warns after three trips within a minute. That rule is the trainer's own, written in the spirit of Manual §4.6.</p>
+
+  <footer>
+    <p>Sources: ACOM 1010 User's Manual (July 2023), cited by section; ACOM is not affiliated with this trainer. Svetlana 4CX800A data for the tube's electrodes.</p>
+    <p>Tutorials: <a href="smith-chart.html">The Smith chart</a> · <a href="pi-network.html">The Pi network</a> · <a href="faults.html">Faults and trips</a></p>
+    <p>Part of the <a href="./">ACOM 1010 Trainer</a> of the University of Scranton Amateur Radio Club, W3USR. Source and licenses: <a href="https://github.com/w3usr/amp-trainer">github.com/w3usr/amp-trainer</a>.</p>
+    <p>Drafted with AI assistance (Claude); pending review by Nathaniel A. Frissell, W2NAF.</p>
+  </footer>
+</main>
+
+<script src="model.js"></script>
+<script src="tutorial.js"></script>
+<script>
+(() => {
+  const { M, $, num, plot } = Tut;
+
+  // ---------- miniature panels ----------
+  // spec: fwd/rfl = LEDs lit; g1/g2/ip/f = 'on' | 'flash'; rflFlash = last RFL LED flashing; tri = 'L' | 'C' | 'R' | 'flash'; all = 'flash'
+  const led = (cls, state) => `<span class="led ${cls}${state ? ' on' : ''}${state === 'flash' ? ' flash' : ''}"></span>`;
+  for (const el of document.querySelectorAll('[data-panel]')) {
+    const s = JSON.parse(el.dataset.panel), all = s.all;
+    let fwd = '<span>FWD</span>';
+    for (let i = 1; i <= 16; i++) fwd += led(i >= 15 ? 'r' : '', all || (i <= (s.fwd || 0)));
+    let rfl = '<span>RFL</span>';
+    for (let i = 1; i <= 8; i++) rfl += led(i >= 7 ? 'r' : '', all || (i <= (s.rfl || 0) && (i < 8 || !s.rflFlash ? true : 'flash')));
+    for (let i = 9; i <= 16; i++) rfl += '<span></span>';
+    const w = (k, cls) => `<span class="grp">${k.toUpperCase()} ${led('w ' + cls, all || s[k])}</span>`;
+    const triS = all ? 'flash' : s.tri;
+    el.innerHTML = `<div class="bar">${fwd}</div><div class="bar">${rfl}</div>
+      <div class="lr">${w('g1', 'a')}${w('g2', 'a')}${w('ip', 'a')}${w('f', 'r')}
+      <span class="grp">TRI ${led('w a', triS === 'flash' ? 'flash' : triS === 'L')}${led('w', triS === 'flash' ? 'flash' : triS === 'C')}${led('w a', triS === 'flash' ? 'flash' : triS === 'R')}</span>
+      <span class="grp">OPER ${led('w', all ? 'flash' : !s.f)}</span></div>`;
+    el.setAttribute('role', 'img');
+    el.setAttribute('aria-label', 'Panel indication: ' + el.parentElement.querySelector('h3').textContent.replace(/Manual.*$/, '').trim());
+  }
+
+  // ---------- SWR against maximum forward power ----------
+  const reflOf = (s) => ((s - 1) / (s + 1)) ** 2;
+  const maxFwd = (s) => M.V('RFLtrip') / reflOf(s);
+  function drawSwr() {
+    const xs = []; for (let i = 0; i <= 200; i++) xs.push(1.5 + 4.5 * i / 200);
+    plot($('swrPlot'), {
+      x: { min: 1.5, max: 6, ticks: [2, 3, 4, 5, 6], fmt: (v) => v + ':1', title: 'SWR' },
+      y: { min: 0, max: 2000, ticks: [0, 500, 1000, 1500, 2000], fmt: (v) => v + '', title: 'Forward, W' },
+      series: [{ cls: 'one', pts: xs.map((s) => [s, Math.min(2000, maxFwd(s))]) }],
+      refs: [], marks: [{ x: 3, y: maxFwd(3) }, { x: 5, y: maxFwd(5) }],
+      labels: [{ x: 3, y: maxFwd(3), text: `${num(maxFwd(3))} W at 3:1`, dx: 10, dy: -8 }, { x: 5, y: maxFwd(5), text: `${num(maxFwd(5))} W at 5:1 (manual: about 540 W)`, anchor: 'end', dy: -12 }, { x: 5.95, y: 700, text: 'rated 700 W PEP', anchor: 'end', dy: -8 }],
+      tip: (s) => `<b>SWR ${num(s, 2)}:1</b><br>${num(reflOf(s) * 100, 1)} % reflected<br>limit reached at <b>${num(maxFwd(s))} W</b> forward`,
+    });
+    // rated-power reference line, drawn across the plot
+    const svg = $('swrPlot'), vb = svg.viewBox.baseVal, y = 14 + (1 - 700 / 2000) * (vb.height - 14 - 40);
+    Tut.mk('line', { x1: 58, x2: vb.width - 16, y1: y, y2: y, class: 'ref' }, svg);
+  }
+  drawSwr();
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(drawSwr, 150); });
+
+  // ---------- the trainer's thresholds, from the model ----------
+  const ROWS = [
+    ['RFLtrip', 'Reflected-power trip'], ['G1warn', 'G1 warning (grid current)'], ['G1trip', 'G1 trip'],
+    ['G2warn', 'G2 warning (screen current)'], ['G2trip', 'G2 trip'], ['IPwarn', 'IP warning (plate + screen current)'], ['IPtrip', 'IP trip'],
+    ['PDtrip', 'Plate heat treated as mistuning'], ['mistuneW', 'Drive above which bad tuning trips'], ['tripHold', 'Time in STANDBY after a trip'],
+    ['triMin', 'TRI lights from'], ['duty', 'Longest continuous drive when tuning'], ['warmup', 'Warm-up'],
+  ];
+  const fmt = (p) => p.unit === 'A' ? num(p.v * 1000) + ' mA' : `${num(p.v)} ${p.unit}`;
+  $('thr').innerHTML = ROWS.map(([k, t]) => { const p = M.P[k]; return `<tr><td>${t}<br><span class="note">${p.note}</span></td><td class="num">${fmt(p)}</td><td><span class="src ${p.src}">${p.src}</span></td></tr>`; }).join('');
+})();
+</script>
+</body>
+</html>

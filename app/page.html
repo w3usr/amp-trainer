@@ -311,7 +311,8 @@ td.num { font-family: var(--f-mono); white-space: nowrap; }
 #presetTable tr.here td { background: var(--chip); font-weight: 600; }
 #presetTable td.here-val { color: var(--accent); }
 footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 80ch; }
-footer a { color: var(--accent); }
+footer a, a.learn { color: var(--accent); }
+a.learn { display: inline-block; margin-top: 4px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -439,6 +440,7 @@ footer a { color: var(--accent); }
     <section class="card" aria-label="Events">
       <h2>Events <small>newest first</small></h2>
       <ul class="log" id="log"><li class="empty">Nothing yet. Power on the amplifier to begin.</li></ul>
+      <p class="note"><a class="learn" href="faults.html" target="_blank" rel="noopener">What every warning and trip means, and what to do →</a></p>
     </section>
   </div>
 
@@ -453,11 +455,11 @@ footer a { color: var(--accent); }
     <div class="xgrid">
       <figure>
         <svg class="chart" id="smith" viewBox="-1.12 -1.12 2.24 2.24" role="img" aria-label="Smith chart of the plate load"></svg>
-        <figcaption>The load the tube sees, normalized to its optimum (center). TRI is centered on the green circle. TUNE moves the point along the dashed circles; LOAD moves it across them (Manual §4.5c).</figcaption>
+        <figcaption>The load the tube sees, normalized to its optimum (center). TRI is centered on the green circle. TUNE moves the point along the dashed circles; LOAD moves it across them (Manual §4.5c). <a class="learn" href="smith-chart.html" target="_blank" rel="noopener">New to Smith charts? Read the tutorial →</a></figcaption>
       </figure>
       <figure>
         <svg class="sch" id="sch" viewBox="0 0 440 210" role="img" aria-label="Pi-L output network with live values"></svg>
-        <figcaption>The Pi-L output network (Manual §5.5). TUNE and LOAD set the two variable capacitors; BAND selects the inductor taps. Values are model placeholders.</figcaption>
+        <figcaption>The Pi-L output network (Manual §5.5). TUNE and LOAD set the two variable capacitors; BAND selects the inductor taps. Values are model placeholders. <a class="learn" href="pi-network.html" target="_blank" rel="noopener">How a Pi network works →</a></figcaption>
         <div class="pbars" id="pbars"></div>
       </figure>
       <figure>

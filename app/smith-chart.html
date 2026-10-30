@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="What a Smith chart is, from scratch, and what the one in the ACOM 1010 Trainer tells you about tuning the amplifier.">
+<title>The Smith Chart · ACOM 1010 Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Saira+Semi+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="tutorial.css">
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Back to the ACOM 1010 Trainer</a>
+  <header style="display:grid;gap:10px">
+    <p class="eyebrow">ACOM 1010 Trainer · Tutorial</p>
+    <h1>The Smith chart</h1>
+    <p class="lede">The trainer's <strong>Inside the amplifier</strong> card shows a dot on a circular chart that moves as you turn TUNE and LOAD. That chart is a <strong>Smith chart</strong>. This page explains what one is, starting from nothing, and then what that dot tells you about tuning the amplifier.</p>
+    <nav class="toc" aria-label="On this page">
+      <a href="#impedance">1. Impedance</a><a href="#circle">2. The circle</a><a href="#reading">3. Reading it</a><a href="#tube">4. The trainer's chart</a><a href="#tuning">5. Tuning on the chart</a>
+    </nav>
+  </header>
+
+  <h2 id="impedance">1. Impedance takes two numbers</h2>
+  <p>Anything you connect to a radio transmitter has an <strong>impedance</strong>: how it responds to the alternating voltage put across it. That includes an antenna, a dummy load, and the amplifier's own output circuit. Impedance has two parts, and you need both.</p>
+  <ul>
+    <li><strong>Resistance (R)</strong> takes power away for good. A dummy load turns it into heat; an antenna radiates it as radio waves.</li>
+    <li><strong>Reactance (X)</strong> stores energy and hands it back every cycle, so it takes no power. <span class="ind">Coils</span> (inductors) have positive reactance; <span class="cap">capacitors</span> have negative reactance. Reactance still matters: it changes how much current flows for a given voltage, and shifts the timing between the two.</li>
+  </ul>
+  <p>The two are written together as <strong>Z = R + jX</strong>, in ohms (Ω). The <em>j</em> only marks which number is the reactance. A dummy load is <span class="mono">50 + j0 Ω</span>. An antenna used a little off its resonant frequency might be <span class="mono">30 + j40 Ω</span>: 30 Ω of it takes power, and the +40 Ω behaves like a small coil and takes none.</p>
+
+  <h2 id="circle">2. Every impedance inside one circle</h2>
+  <p>Resistance can be anything from 0 to infinity and reactance anything from minus to plus infinity, so a plain graph of R against X never fits on a page. In 1939 Phillip Smith, an engineer at Bell Labs, published a chart that fits all of them inside one circle. It measures every impedance against one <strong>reference impedance</strong>, usually the 50 Ω of the coax.</p>
+  <p>What it actually plots is the <strong>reflection coefficient</strong>, Γ (gamma). When power travels down a 50 Ω coax and meets a load that is not 50 Ω, part of it bounces back. Γ says how much bounces back and in what timing (phase):</p>
+  <p class="eq">Γ = (Z − Z₀) / (Z + Z₀)<br>Z₀ = the reference impedance, here 50 Ω</p>
+  <p>The size of Γ is the distance from the center of the chart. Its phase is the direction. The landmarks:</p>
+  <ul>
+    <li><strong>The center</strong> is the reference itself, 50 Ω. Nothing reflects: a perfect match.</li>
+    <li><strong>The horizontal line</strong> is pure resistance: low on the left, high on the right. Its left end is 0 Ω (a short circuit) and its right end is infinite (an open circuit).</li>
+    <li><strong>The upper half</strong> is inductive (coil-like, X positive). <strong>The lower half</strong> is capacitive (X negative).</li>
+    <li><strong>The outer rim</strong> is pure reactance with no resistance at all. Nothing there takes power, so everything reflects.</li>
+  </ul>
+
+  <figure>
+    <h3>Figure 1. Try it: a load on the end of 50 Ω coax</h3>
+    <div class="figgrid">
+      <svg class="smith" id="smithA" viewBox="-1.32 -1.24 2.64 2.48" role="img" aria-label="Smith chart referenced to 50 ohms, with a draggable load point"></svg>
+      <div class="controls">
+        <div class="row">
+          <label class="note" for="inR" style="font-weight:700">R (Ω)</label><input type="number" id="inR" step="1" min="0" style="width:6em">
+          <label class="note" for="inX" style="font-weight:700">X (Ω)</label><input type="number" id="inX" step="1" style="width:6em">
+        </div>
+        <div class="row" id="presets" role="group" aria-label="Rear-panel loads"></div>
+        <dl class="kv" id="kvA"></dl>
+      </div>
+    </div>
+    <figcaption>Drag anywhere on the chart, or type a resistance and reactance. The buttons are the loads on the trainer's rear panel. Solid circles are constant resistance and arcs are constant reactance, labeled in ohms. The <span style="color:var(--accent)">dashed blue circle</span> runs through your load: every load on it has the same SWR. The <span style="color:var(--warn)">amber circle</span> is SWR 3:1, the range of loads the ACOM 1010 is guaranteed to match (Manual §4.5a).</figcaption>
+  </figure>
+
+  <h2 id="reading">3. Reading the chart</h2>
+  <ul>
+    <li><strong>Constant-resistance circles.</strong> Every point on one of the solid circles has the same R. They all touch the right-hand end of the line.</li>
+    <li><strong>Constant-reactance arcs.</strong> Every point on one arc has the same X: inductive above the line, capacitive below.</li>
+    <li><strong>Distance from the center is mismatch.</strong> Loads at the same distance reflect the same fraction of the power, whatever their direction. That distance sets the <strong>SWR</strong> (standing-wave ratio) you read on a meter, and the reflected fraction is |Γ|².</li>
+  </ul>
+  <p>The ACOM's two LED bars measure exactly this at its output: FWD is the power sent toward the antenna and RFL the power coming back. The manual's own example: at SWR 2.5:1, 800 W forward comes with 150 W reflected, so 650 W actually reaches the antenna system (Manual §4.5a). Try the 125 Ω button in Figure 1: |Γ|² is 18.4%, and 18.4% of 800 W is about 150 W.</p>
+  <div class="callout">
+    <p><strong>The amplifier's knobs cannot change the SWR.</strong> The fraction that reflects is set by the antenna and the coax. Turning TUNE and LOAD does not move the dot in Figure 1. The trainer behaves the same way: load an SWR test load and watch RFL stay the same fraction of FWD as you tune. What the knobs <em>can</em> do is make the tube see the load it wants, whatever is on the coax, within limits. The amplifier is safe while reflected power stays below 250 W (Manual §4.5a). To lower the SWR itself, fix the antenna or add an antenna tuner.</p>
+  </div>
+
+  <h2 id="tube">4. The chart in the trainer is about the tube</h2>
+  <p>The chart in the trainer's <strong>Inside the amplifier</strong> card is a Smith chart with a different reference. Its center is not 50 Ω but the <strong>tube's optimum plate load</strong>: the load at which the 4CX800A gives full power efficiently and cleanly. In the trainer's model that is about <strong>2,300 Ω</strong>. That number is an estimate. ACOM does not publish it, and the trainer will replace it when the club measures the real amplifier.</p>
+  <p>The dot is the impedance the tube's plate sees, looking into the output network with the antenna on the far end. The network's job is to turn the antenna's roughly 50 Ω into roughly 2,300 Ω, and the <a href="pi-network.html">Pi network tutorial</a> explains how. When the dot is in the center, the tube sees exactly its optimum.</p>
+  <p>Away from the center, the manual describes what happens (Manual §4.5c). With the load resistance too high, there is more gain but less linearity. With it too low, there is less gain and more power is attainable, but only with more drive, more plate current and more plate heat, which shortens the tube's life.</p>
+
+  <h2 id="tuning">5. Tuning on the chart</h2>
+  <p>To see why TUNE and LOAD move the dot the way they do, look at impedance the other way round. The TUNE capacitor connects straight from the tube's plate to ground, alongside everything else: it is <strong>in parallel</strong>. For parallel parts it is easier to use <strong>admittance</strong>, the inverse of impedance, Y = G + jB. G, the <strong>conductance</strong>, is the part that takes power. B, the <strong>susceptance</strong>, is the part that does not. Adding a capacitor in parallel adds to B and leaves G alone.</p>
+  <p>On a Smith chart, points with the same G lie on circles that all touch the <em>left</em>-hand end of the line. Those are the <strong>dashed circles</strong> on the trainer's chart. So:</p>
+  <ul>
+    <li><strong>TUNE slides the dot around one dashed circle.</strong> It changes only the leftover reactance at the plate, never the resistance.</li>
+    <li><strong>The green circle</strong> is the set of points where the parallel resistance (1/G) equals the tube's optimum. That is what the <strong>TRI</strong>, the <em>True Resistance Indicator</em> above the LOAD knob, measures: a centered TRI means the optimum load resistance (Manual §4.5c).</li>
+    <li><strong>LOAD moves the dot across the dashed circles</strong>, because it changes how strongly the network steps up the antenna's resistance. Inside the green circle, toward the left, the resistance is too low and the TRI's right-hand LED lights: turn LOAD left. Outside it, toward the right, the resistance is too high and the left-hand LED lights: turn LOAD right (Manual Fig. 4-1).</li>
+    <li><strong>The center is where forward power peaks.</strong> Once LOAD has put the dot on the green circle, TUNE slides it around to the center. There, no leftover reactance takes the tube's current without delivering power, which is why you peak FWD with TUNE.</li>
+  </ul>
+  <p>This is why the manual calls the knob positions "virtually independent" (Manual §4.5c): the TRI answers to LOAD, and the FWD peak answers to TUNE. They are not perfectly independent, though. LOAD also nudges the dot sideways, so the manual has you peak TUNE and center LOAD again after raising the drive (Manual §4.5b).</p>
+
+  <figure>
+    <h3>Figure 2. Try it: tuning on 20 m into a dummy load</h3>
+    <div class="figgrid">
+      <svg class="smith" id="smithP" viewBox="-1.14 -1.14 2.28 2.28" role="img" aria-label="Smith chart of the tube's plate load, referenced to the tube's optimum"></svg>
+      <div class="controls">
+        <div class="ctl"><label for="tune">TUNE</label><input type="range" id="tune" min="0" max="100" step="0.1"><output id="tuneOut"></output></div>
+        <div class="ctl"><label for="load">LOAD</label><input type="range" id="load" min="0" max="100" step="0.1"><output id="loadOut"></output></div>
+        <div class="row"><button class="btn" id="toPreset">Table 4-1 preset</button><button class="btn" id="toBest">Model optimum</button><button class="btn" id="toOff">Somewhere off</button></div>
+        <div class="row" style="justify-content:space-between"><span class="note" style="font-weight:700">TRI</span><span class="tri" id="tri" aria-hidden="true"><span class="a"></span><span></span><span class="a"></span></span></div>
+        <dl class="kv" id="kvP"></dl>
+      </div>
+    </div>
+    <figcaption>The same chart as the trainer's, at 14.175 MHz into a 50 Ω dummy load with 15 W of drive. Its center is the tube's optimum plate load. Dashed circles are constant conductance: TUNE moves the dot along them. The <span style="color:var(--ok)">green circle</span> is where the TRI is centered. Values come from the trainer's model, whose component values are placeholders until the club measures the amplifier.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><strong>Next:</strong> the <a href="pi-network.html">Pi network tutorial</a> opens up the circuit between the tube and the antenna and follows the impedance through it, part by part, on a Smith chart.</p>
+  </div>
+
+  <footer>
+    <p>Sources: ACOM 1010 User's Manual (July 2023), cited by section; ACOM is not affiliated with this trainer. P. H. Smith, "Transmission Line Calculator," <em>Electronics</em>, January 1939.</p>
+    <p>Tutorials: <a href="smith-chart.html">The Smith chart</a> · <a href="pi-network.html">The Pi network</a> · <a href="faults.html">Faults and trips</a></p>
+    <p>Part of the <a href="./">ACOM 1010 Trainer</a> of the University of Scranton Amateur Radio Club, W3USR. Source and licenses: <a href="https://github.com/w3usr/amp-trainer">github.com/w3usr/amp-trainer</a>.</p>
+    <p>Drafted with AI assistance (Claude); pending review by Nathaniel A. Frissell, W2NAF.</p>
+  </footer>
+</main>
+
+<script src="model.js"></script>
+<script src="tutorial.js"></script>
+<script>
+(() => {
+  const { M, $, mk, cx, mag, gamma, zOf, swrOf, num, ohm, fmtZ, P, smithGrid, gammaAt, parallelR, setTri } = Tut;
+
+  // ---------- Figure 1: a load on 50 Ω coax ----------
+  const Z0 = 50, svgA = $('smithA');
+  const layerA = smithGrid(svgA, { r: [0.2, 0.5, 1, 2, 5], x: [0.2, 0.5, 1, 2, 5], z0: Z0 });
+  mk('circle', { r: 0.5, class: 'limit' }, layerA);
+  const lim = mk('text', { x: 0.36, y: 0.42, class: 'lbl', style: 'fill:var(--warn)' }, layerA); lim.textContent = 'SWR 3:1';
+  for (const [x, y, t, a] of [[-1.3, -1.15, 'INDUCTIVE ↑', 'start'], [-1.3, 1.21, 'CAPACITIVE ↓', 'start'], [-1.03, 0.1, 'short', 'end'], [1.03, 0.1, 'open', 'start']]) {
+    const e = mk('text', { x, y, 'text-anchor': a, class: 'lbl big' }, svgA); e.textContent = t;
+  }
+  const swrC = mk('circle', { class: 'swr' }, layerA);
+  const ptA = mk('circle', { r: 0.045, class: 'pt' }, layerA);
+  let ZA = cx(30, 40);
+  const LOADS = [['Dummy load', 50, 0], ['125 Ω (2.5:1)', 125, 0], ['30 + j40 Ω (3:1)', 30, 40], ['250 Ω (5:1)', 250, 0], ['Open coax', 0.5, -35], ['Short', 0, 0]];
+  const pres = $('presets');
+  for (const [t, r, x] of LOADS) { const b = document.createElement('button'); b.className = 'btn'; b.textContent = t; b.onclick = () => setA(cx(r, x)); pres.appendChild(b); }
+  const kvA = $('kvA');
+  function setA(Z, fromInput) {
+    ZA = cx(Math.max(0, Z.re), Z.im);
+    const g = gamma(ZA, Z0), m = mag(g), swr = swrOf(g), [x, y] = P(g);
+    ptA.setAttribute('cx', x); ptA.setAttribute('cy', y); swrC.setAttribute('r', Math.min(m, 1));
+    if (!fromInput) { $('inR').value = ohm(ZA.re).replace(/,/g, ''); $('inX').value = ohm(ZA.im).replace(/,/g, ''); }
+    const refl = m * m;
+    const rows = [
+      ['Impedance', fmtZ(ZA)],
+      ['Compared with 50 Ω', `${num(ZA.re / Z0, 2)} ${ZA.im < 0 ? '−' : '+'} j${num(Math.abs(ZA.im) / Z0, 2)}`],
+      ['Reflection |Γ|', num(m, 3)],
+      ['SWR', swr > 99 ? 'over 99 : 1' : num(swr, 2) + ' : 1'],
+      ['Power reflected', num(refl * 100, 1) + ' %'],
+      ['At 800 W forward', `RFL ${num(800 * refl)} W, delivered ${num(800 * (1 - refl))} W`],
+    ];
+    kvA.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') +
+      (swr > 3.0001 ? '<dt style="grid-column:1/-1;color:var(--warn)">Beyond 3:1: the ACOM may not match it, and reflected power must stay under 250 W (Manual §4.5a).</dt>' : '');
+    pres.querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', ZA.re === LOADS[i][1] && ZA.im === LOADS[i][2]));
+  }
+  for (const id of ['inR', 'inX']) $(id).addEventListener('input', () => { const r = parseFloat($('inR').value), x = parseFloat($('inX').value); if (!isNaN(r) && !isNaN(x)) setA(cx(r, x), true); });
+  let dragA = false;
+  const moveA = (e) => { let g = gammaAt(svgA, e); const m = mag(g); if (m > 0.995) g = cx(g.re * 0.995 / m, g.im * 0.995 / m); const Z = zOf(g, Z0); setA(cx(Math.round(Z.re * 10) / 10, Math.round(Z.im * 10) / 10)); };
+  svgA.addEventListener('pointerdown', (e) => { dragA = true; try { svgA.setPointerCapture(e.pointerId); } catch (err) {} moveA(e); e.preventDefault(); });
+  svgA.addEventListener('pointermove', (e) => { if (dragA) moveA(e); });
+  for (const t of ['pointerup', 'pointercancel']) svgA.addEventListener(t, () => { dragA = false; });
+  setA(ZA);
+
+  // ---------- Figure 2: the plate load while tuning ----------
+  const F = 14.175e6, KHZ = 14175, POS = 4, DRIVE = 15, ROPT = M.V('Ropt'), svgP = $('smithP');
+  const layerP = smithGrid(svgP, { r: [0.33, 1, 3], g: [0.33, 0.6, 1.6, 3], target: true });
+  for (const [x, t] of [[-0.98, 'R low'], [0.62, 'R high']]) { const e = mk('text', { x, y: -0.92, class: 'lbl big' }, svgP); e.textContent = t; }
+  const gl = mk('text', { x: -0.5, y: -0.53, 'text-anchor': 'middle', class: 'lbl', style: 'fill:var(--ok)' }, svgP); gl.textContent = 'TRI centered';
+  const trail = mk('polyline', { class: 'trail', points: '' }, layerP);
+  const ptP = mk('circle', { r: 0.045, class: 'pt' }, layerP);
+  const trailPts = [];
+  const pre = M.preset(KHZ), best = M.bestDials(POS, F, cx(50));
+  const kvP = $('kvP');
+  function renderP() {
+    const tune = +$('tune').value, load = +$('load').value;
+    $('tuneOut').textContent = tune.toFixed(1); $('loadOut').textContent = load.toFixed(1);
+    const r = M.solve({ pos: POS, f: F, tune, load, ZL: cx(50), drive: DRIVE, rtty: false });
+    const g = gamma(r.Zp, ROPT), [x, y] = P(g);
+    ptP.setAttribute('cx', x); ptP.setAttribute('cy', y);
+    const last = trailPts[trailPts.length - 1];
+    if (!last || Math.hypot(last[0] - x, last[1] - y) > 0.01) { trailPts.push([x, y]); if (trailPts.length > 80) trailPts.shift(); trail.setAttribute('points', trailPts.map((p) => p.map((v) => v.toFixed(3)).join(',')).join(' ')); }
+    setTri($('tri'), r.tri);
+    const Rp = parallelR(r.Zp);
+    const tdet = r.tdet;
+    kvP.innerHTML = [
+      ['Parallel resistance', `${num(Rp)} Ω (optimum ${num(ROPT)})`],
+      ['TRI says', r.tri === 'off' ? 'dark: too far off' : r.tri === 'C' ? 'centered' : Rp > ROPT ? 'too high: turn LOAD right' : 'too low: turn LOAD left'],
+      ['Leftover at the plate', Math.abs(tdet) < 0.03 ? 'none: FWD peaked' : (tdet > 0 ? 'too much capacitance' : 'too little capacitance')],
+      ['Forward power', `${num(r.Pfwd)} W at ${DRIVE} W drive`],
+    ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+  }
+  const setDials = (t, l) => { $('tune').value = t.toFixed(1); $('load').value = l.toFixed(1); renderP(); };
+  $('tune').addEventListener('input', renderP); $('load').addEventListener('input', renderP);
+  $('toPreset').onclick = () => setDials(pre.tune, pre.load);
+  $('toBest').onclick = () => setDials(best.tune, best.load);
+  $('toOff').onclick = () => setDials(best.tune + 6, best.load - 7);
+  setDials(pre.tune, pre.load);
+})();
+</script>
+</body>
+</html>
