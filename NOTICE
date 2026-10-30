@@ -1,12 +1,21 @@
 W3USR Amplifier Trainer
 Copyright (c) 2026 University of Scranton Amateur Radio Club (W3USR)
-All rights reserved.
 
-No license has been chosen for this repository yet; until one is, no permission to copy,
-modify or distribute is granted. Revisit before any public release.
+Software: MIT License (LICENSE).
+Documentation: Creative Commons Attribution 4.0 International (LICENSE-docs.md).
 
 The repository scaffold derives from the W3USR AI Project Template,
 https://github.com/w3usr/ai_project_template, licensed CC BY 4.0.
 
-The ACOM 1010 User's Manual and the 4CX800A/GU74B tube data are third-party documents. They
-are not part of this repository; they are carried by the w3usr_antennas submodule.
+Not covered by either license:
+
+- ACOM 1010 data. The tuning preset values (ACOM 1010 User's Manual, July 2023, Table 4-1),
+  the front-panel layout and the procedures and protection behavior the trainer follows are
+  ACOM's, cited by manual section. ACOM is not affiliated with this project. The manual itself
+  is not in this repository.
+- Tube data. Ratings cited from the Svetlana 4CX800A data sheet remain the publisher's.
+- docs/ai_policy_agreement/ is the HamSCI Project Research Group Generative AI Use Agreement,
+  reproduced as distributed with the W3USR AI Project Template.
+
+Antenna sweeps of the W3USR station antennas, when added, are the club's own measurements and are
+covered by the documentation license.

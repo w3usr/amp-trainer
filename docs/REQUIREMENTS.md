@@ -7,10 +7,10 @@ Requirement IDs (`FR-n`, `NFR-n`) are stable: a dropped requirement keeps its nu
 struck through, never reused. Priorities: **Must** (needed for the first release in which its
 area appears), **Should**, **Could**.
 
-Sources cited as "Manual §x" are the *ACOM 1010 User's Manual* (July 2023), carried at
-`w3usr_antennas/docs/manuals/aom-1010-120.pdf`. "Datasheet" is the Svetlana 4CX800A data at
-`w3usr_antennas/docs/manuals/4CX800A_GU74B_tube_datasheets.pdf`. "Panel photo" is
-`w3usr_antennas/docs/presentations/acom1010_talk/figs/front_panel.jpg`, the W3USR unit itself.
+Sources cited as "Manual §x" are the *ACOM 1010 User's Manual* (July 2023). "Datasheet" is the
+Svetlana 4CX800A data. "Panel photo" is the club's photograph of the W3USR unit itself. All three
+are kept in the private `w3usr_antennas` repository (`docs/manuals/` and
+`docs/presentations/acom1010_talk/figs/front_panel.jpg`), not in this public one.
 
 ---
 
@@ -149,9 +149,9 @@ placeholders and are fitted to calibration data (§8).
 
 - **FR-20 [Must]** Loads are complex impedance versus frequency, read from Touchstone `.s1p`
   files (RigExpert or NanoVNA export). Both instruments write the format.
-- **FR-21 [Must]** Station antennas come from the `w3usr_antennas` submodule, measured **at the
-  amplifier's ANT connector** so the feedline is included. Until the sweeps exist, ANT1 and ANT2
-  are labeled as placeholders.
+- **FR-21 [Must]** Station antennas come from sweeps measured **at the amplifier's ANT
+  connector**, so the feedline is included, and committed under `data/` in this repository.
+  Until the sweeps exist, ANT1 and ANT2 are labeled as placeholders.
 - **FR-22 [Must]** Built-in synthetic loads: a 50 Ω dummy load; loads at SWR 2:1, 3:1 and 5:1 at
   chosen phases; an open line (no antenna). These carry the `placeholder` tag only in the sense that they
   are idealized: their impedances are exact by construction.
@@ -289,8 +289,8 @@ Phases 1 and 2 need no measurements and no server.
 | Tube datasheet (typical operation) | Have | `w3usr_antennas/docs/manuals/` |
 | Tube characteristic curves | The datasheet is scanned. The curves must be digitized if it has them; check | here, `model/data/` |
 | Front panel layout and dial scales | Have (panel photo) | `w3usr_antennas/.../figs/` |
-| ANT1 (Yagi) sweep at amplifier ANT1, 13 to 30 MHz | **To measure** (RigExpert or NanoVNA) | `w3usr_antennas` |
-| ANT2 (fan dipole) sweep at amplifier ANT2, 3 to 8 MHz | **To measure** | `w3usr_antennas` |
+| ANT1 (Yagi) sweep at amplifier ANT1, 13 to 30 MHz | **To measure** (RigExpert or NanoVNA) | `data/` here |
+| ANT2 (fan dipole) sweep at amplifier ANT2, 3 to 8 MHz | **To measure** | `data/` here |
 | Calibration session log on the real amplifier (dummy load and each antenna, each band, several segments) | **To do**; protocol to be written in Phase 3 | here, `calibration/` |
 | Which tube is installed | TBD | `w3usr_antennas` equipment list |
 | Internal mains tap setting | TBD (unit wired for 208 V) | `w3usr_antennas` equipment list |
@@ -318,7 +318,7 @@ The app is static files; only qualification records and the leaderboard need a s
 |---|---|---|---|
 | **A. Cloudflare Pages** (or Workers static assets), at e.g. `amp.w3usr.org` | Free tier | `w3usr.org` DNS is already on Cloudflare; builds from the private GitHub repo; **a preview URL per pull request** (NFR-6); no load on the club's production server; can be gated with Cloudflare Access if wanted | Another dashboard to manage; free-tier limits to confirm |
 | **B. Existing ops Linode**, a new nginx site or a path under `ops.w3usr.org` | None extra | Already paid for and provisioned reproducibly from `w3usr.org-PRIVATE/deploy/`; **same origin as ARCOps**, so ARCOps sign-in can be reused directly | Adds a second application to the production server; the deploy scripts gain a new target; no per-PR previews without extra work |
-| C. GitHub Pages | Free for public repos | Simple | Needs this repo public or a paid GitHub plan |
+| **C. GitHub Pages** at `w3usr.github.io/amp-trainer` | Free | Simple; no other account or dashboard; builds from this repository with a GitHub Action | Needs the repository public (decided) or a paid plan; no per-PR previews without extra work |
 
 A one-level subdomain such as `amp.w3usr.org` is required with either A or B: Cloudflare's free
 edge certificate does not cover two levels (`w3usr.org-PRIVATE/deploy/README.md`, 2026-10-16).
@@ -331,18 +331,19 @@ edge certificate does not cover two levels (`w3usr.org-PRIVATE/deploy/README.md`
 | **R2. ARCOps** | Already has member accounts and sign-in, and *credential types* that gate who may sign up for station slots (ARCOps FR-18). A passed test becomes evidence toward an "ACOM 1010 check-out" credential the supervisor grants | Needs ARCOps work (an API or module), through that project's own requirements process; ties the trainer's release to ARCOps |
 | R3. Own backend (e.g., a Cloudflare database behind Pages Functions) | Independent | A second set of accounts to run; duplicates ARCOps |
 
-**Recommendation:** host on **A** now for its free per-PR previews and zero impact on the
-production server. Use **R1** until Phase 5, then integrate with **R2**. If R2 is chosen, revisit
-hosting: serving the trainer from the ops Linode (**B**) makes ARCOps sign-in same-origin and
-simpler.
+**Decision (2026-10-30, W2NAF):** host on **C**, GitHub Pages, at
+`https://w3usr.github.io/amp-trainer/`, with this repository public. A custom subdomain such as
+`trainer.w3usr.org` can point at it later. Use **R1** for records until Phase 5, then integrate
+with **R2**. If R2 is chosen, revisit hosting: serving the trainer from the ops Linode (**B**)
+makes ARCOps sign-in same-origin and simpler.
 
 ## 11. Open decisions
 
-1. Hosting (§10.1) and records (§10.2).
+1. ~~Hosting (§10.1).~~ Decided 2026-10-30: GitHub Pages. Records (§10.2) remain open.
 2. Qualification tolerance: how close the student's final TUNE/LOAD must be to the model optimum,
    and how close the model must match the real amplifier (Phase 3 exit).
 3. Whether the leaderboard shows callsigns, chosen names, or both, and whether it is club-only.
-4. Licensing: the repository is all rights reserved for now. If the trainer is released for other
-   clubs, choose a license, and confirm that no third-party material is bundled.
+4. ~~Licensing.~~ Decided 2026-10-30: MIT for software, CC BY 4.0 for documentation; ACOM and
+   tube data excepted (`NOTICE`). The repository is public and bundles no third-party documents.
 5. Whether the briefing's photos may be used in the app (they are of the club's own equipment).
 6. Who runs the calibration session, with what instrument, and when.

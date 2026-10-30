@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Practice tuning the ACOM 1010 HF linear amplifier the way its manual describes, with the physics shown live. A training aid of the W3USR club.">
+<title>ACOM 1010 Trainer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Saira+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: one column of instrument-first sections; the amplifier face is a fixed-look
+   object (black anodized panel), everything around it follows the viewer's theme. */
+:root {
+  --bg: #e7ecef;
+  --surface: #f7f9fa;
+  --ink: #141a1f;
+  --muted: #55616b;
+  --line: #cbd4db;
+  --chip: #dbe3e9;
+  --accent: #0d6a85;
+  --accent-ink: #ffffff;
+  --ok: #1b7a3a;
+  --warn: #8f5a00;
+  --bad: #b3261e;
+  --f-display: "Saira Semi Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* instrument palette: fixed in both themes */
+  --p-face: #121416;
+  --p-ink: #e8ebee;
+  --p-dim: #8d959c;
+  --p-off: #26363a;
+  --p-green: #4ef08a;
+  --p-amber: #ffb22e;
+  --p-red: #ff4436;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1114; --surface: #151b20; --ink: #e2e8ed; --muted: #93a0aa; --line: #283139;
+    --chip: #1e262d; --accent: #62c3de; --accent-ink: #062029; --ok: #5fd38c; --warn: #f0b44c; --bad: #ff7b70;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1114; --surface: #151b20; --ink: #e2e8ed; --muted: #93a0aa; --line: #283139;
+  --chip: #1e262d; --accent: #62c3de; --accent-ink: #062029; --ok: #5fd38c; --warn: #f0b44c; --bad: #ff7b70;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h1 { font-size: clamp(28px, 4.2vw, 40px); font-weight: 700; line-height: 1.05; }
+h2 { font-size: 20px; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.12em; font-size: 12px; color: var(--muted); font-weight: 600; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.lede { max-width: 72ch; color: var(--muted); }
+.lede strong { color: var(--ink); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
+  padding: 4px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.warn { color: var(--warn); }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+/* mode switch */
+.modes { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; width: fit-content; max-width: 100%; }
+.modes button { font: 600 15px var(--f-display); letter-spacing: 0.03em; padding: 8px 16px; border: 0; background: var(--surface); color: var(--muted); cursor: pointer; }
+.modes button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* cards */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.card h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.card h2 small { font: 400 13px var(--f-body); color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px; }
+.note { font-size: 13px; color: var(--muted); }
+
+/* ---------- amplifier face ---------- */
+.amp { background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #1a1d20, var(--p-face) 40%, #0c0d0e);
+  border-radius: 12px; padding: clamp(14px, 2.4vw, 26px); color: var(--p-ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 30px rgba(0,0,0,0.25); min-width: 0; }
+.face { display: grid; grid-template-columns: 1fr 1fr 1.75fr; grid-template-areas: "title band disp" "load tune btns"; gap: 10px 22px; align-items: end; }
+.a-title { grid-area: title; align-self: start; font: 500 clamp(13px, 1.6vw, 18px) var(--f-display); letter-spacing: 0.02em; }
+.a-title small { display: block; color: var(--p-dim); font-size: 12px; letter-spacing: 0.08em; margin-top: 4px; }
+.a-band { grid-area: band; } .a-load { grid-area: load; } .a-tune { grid-area: tune; }
+.a-disp { grid-area: disp; align-self: start; display: grid; gap: 6px; }
+.a-btns { grid-area: btns; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 18px; justify-content: space-between; }
+.a-lbl { font: 600 15px var(--f-display); letter-spacing: 0.06em; text-align: center; }
+.knobwrap { display: grid; justify-items: center; gap: 4px; }
+.knob { width: min(100%, 200px); aspect-ratio: 1; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.knob:active { cursor: grabbing; }
+.knob.band { aspect-ratio: 300 / 230; width: min(100%, 250px); }
+.knob text { fill: var(--p-ink); font-family: var(--f-display); font-weight: 500; }
+.nudge { display: flex; gap: 6px; align-items: center; }
+.nudge button { width: 34px; height: 30px; border-radius: 6px; border: 1px solid #3a4046; background: #1d2125; color: var(--p-ink); font: 600 16px var(--f-mono); cursor: pointer; }
+.nudge output { min-width: 56px; text-align: center; font: 500 15px var(--f-mono); color: var(--p-ink); }
+.tri { display: flex; gap: 10px; justify-content: center; margin-bottom: 4px; }
+
+/* LED rows */
+.bars { display: grid; grid-template-columns: 34px repeat(16, minmax(0, 1fr)); gap: 5px 4px; align-items: center; }
+.bars .rl { font: 600 15px var(--f-display); letter-spacing: 0.04em; }
+.bars .sc { font: 500 13px var(--f-display); color: var(--p-ink); text-align: center; white-space: nowrap; }
+.led { height: 6px; border-radius: 2px; background: var(--p-off); box-shadow: inset 0 1px 1px rgba(0,0,0,0.6); }
+.led.r { background: #3a2626; }
+.led.on { background: var(--p-green); box-shadow: 0 0 6px var(--p-green); }
+.led.r.on { background: var(--p-red); box-shadow: 0 0 6px var(--p-red); }
+.led.a.on { background: var(--p-amber); box-shadow: 0 0 6px var(--p-amber); }
+.dot { width: 22px; height: 6px; border-radius: 2px; background: var(--p-off); display: inline-block; }
+.dot.on { background: var(--p-green); box-shadow: 0 0 6px var(--p-green); }
+.dot.a.on { background: var(--p-amber); box-shadow: 0 0 6px var(--p-amber); }
+.dot.r.on { background: var(--p-red); box-shadow: 0 0 6px var(--p-red); }
+.flash { animation: flash 0.8s steps(1) infinite; }
+@keyframes flash { 50% { background: var(--p-off); box-shadow: none; } }
+@media (prefers-reduced-motion: reduce) { .flash { animation-duration: 1.6s; } }
+.warnlbl { font: 600 14px var(--f-display); text-align: center; }
+.antcards { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+.antcards span { background: #e6dccb; color: #7a2e25; font: 500 12px var(--f-body); padding: 3px 8px; border-radius: 3px; text-align: center; line-height: 1.25; }
+.readline { font: 400 12px var(--f-mono); color: var(--p-dim); text-align: right; }
+.pbtn { display: grid; justify-items: center; gap: 8px; }
+.pbtn .lbl { font: 600 14px var(--f-display); letter-spacing: 0.06em; display: flex; gap: 6px; }
+.pbtn button { width: 50px; height: 40px; border-radius: 4px; border: 1px solid #000; background: linear-gradient(#34393e, #24282c); box-shadow: 0 2px 0 #000, inset 0 1px 0 rgba(255,255,255,0.12); cursor: pointer; }
+.pbtn button:active { transform: translateY(1px); box-shadow: 0 1px 0 #000; }
+.pbtn .leds { display: flex; gap: 8px; }
+.onbtn button { width: 56px; height: 56px; border-radius: 50%; border: 4px solid #050505; background: radial-gradient(circle at 40% 35%, #3c4146, #1b1e21); }
+.skip { display: block; margin-top: 14px; text-align: left; font: 600 14px var(--f-display); background: transparent; color: var(--p-amber); border: 1px dashed var(--p-amber); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.a-title .skip small { color: inherit; opacity: 0.8; margin-top: 2px; letter-spacing: 0.04em; }
+.statusline { display: flex; flex-wrap: nowrap; white-space: nowrap; overflow: hidden; gap: 6px 16px; margin-top: 14px; padding-top: 10px; border-top: 1px solid #2a2f34; font: 400 13px var(--f-mono); color: var(--p-dim); }
+.statusline b { color: var(--p-ink); font-weight: 500; }
+
+/* The face is laid out at a fixed design width (1100 px, or 700 px on a phone) and scaled by
+   fitConsole so that the panel and the transceiver strip under it always fit in the window together. */
+.console { display: grid; gap: 10px; scroll-margin-top: 8px; min-width: 0; }
+.dock > * { min-width: 0; }
+/* The console comes straight after the title so the panel and the radio open on screen together. */
+.wrap > * { order: 10; }
+.wrap > header { order: 0; } .wrap > .modes { order: 1; } #sprintCard { order: 2; } .wrap > .console { order: 3; }
+.amp { justify-self: center; width: 100%; position: relative; }
+/* While a knob is turned by touch, the finger hides the dial, so its setting is shown above the panel. */
+.dragread { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); z-index: 2; pointer-events: none;
+  font: 600 15px var(--f-mono); color: #121416; background: var(--p-amber); border-radius: 6px; padding: 3px 10px; white-space: nowrap; }
+.facebox { position: relative; overflow: hidden; }
+.facebox .face { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+.facebox.phone .face { padding-right: 26px; gap: 10px 16px; }
+.facebox.phone .nudge { display: none; }
+.facebox.phone .a-title { font-size: 21px; } .facebox.phone .a-title small { font-size: 15px; }
+.facebox.phone .bars .sc { font-size: 18px; }
+.facebox.phone .bars .rl, .facebox.phone .a-lbl, .facebox.phone .pbtn .lbl { font-size: 20px; }
+.facebox.phone .warnlbl { font-size: 13px; letter-spacing: 0; }
+.facebox.phone .led { height: 11px; }
+.facebox.phone .dot { width: 30px; height: 11px; }
+.facebox.phone .knob text { font-size: 19px; }
+.facebox.phone .a-btns { flex-wrap: nowrap; gap: 10px; }
+.facebox.phone .pbtn button { width: 46px; height: 38px; }
+.facebox.phone .onbtn button { width: 52px; height: 52px; }
+.facebox.phone .antcards span { font-size: 15px; }
+.facebox.phone .readline { font-size: 16px; }
+.facebox.phone .skip { font-size: 22px; padding: 6px 14px; border-width: 2px; }
+
+/* transceiver strip and phone controls, directly under the panel */
+.dock { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; display: grid; gap: 8px 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); grid-template-areas: "radio tx"; align-items: center; }
+.dk-radio { grid-area: radio; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.dk-name { font: 600 16px var(--f-display); }
+.dk-name small { font: 400 12px var(--f-body); color: var(--muted); margin-left: 4px; }
+.dock .freq { font-size: 24px; }
+.dk-f { display: flex; gap: 6px; align-items: center; }
+.dk-f input { width: 6.5em; }
+#xBandSel { display: none; }
+.dk-tx { grid-area: tx; display: grid; grid-template-columns: 1fr 48%; gap: 10px; align-items: center; }
+.dk-tx .keybtn { padding: 14px 8px; font-size: 15px; height: 100%; }
+
+@media (max-width: 760px) {
+  body { padding-top: 10px; }
+  .wrap { gap: 12px; }
+  header .eyebrow { display: none; }
+  .wrap > header { flex-wrap: nowrap; align-items: center; }
+  h1 { font-size: 22px; }
+  .pill { font-size: 11px; padding: 2px 8px; white-space: nowrap; }
+  .modes button { padding: 5px 12px; font-size: 14px; }
+  .console { gap: 8px; }
+  .amp { padding: 8px; border-radius: 10px; }
+  .statusline { margin-top: 6px; padding-top: 6px; font-size: 11px; gap: 2px 10px; flex-wrap: nowrap; white-space: nowrap; overflow: hidden; }
+  .dock { padding: 8px; gap: 8px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "radio" "tx"; }
+  .dk-name, #xBands, #freqShow { display: none; }
+  #xBandSel { display: block; }
+  .dk-radio { flex-wrap: nowrap; gap: 6px; }
+  .dk-f { flex: 1; min-width: 0; } #xBandSel { flex: none; } .dk-f input { flex: 1; min-width: 0; width: auto; font: 500 18px var(--f-mono); }
+  .dk-f .btn { padding: 6px 10px; }
+  .dk-tx .keybtn { padding: 12px 6px; }
+}
+
+/* Phone on its side: only ~270 px of height, so the radio moves beside the panel instead of under it,
+   and the console leads the page with the title and tabs after it. */
+.fsbtn { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  body { padding-block: 6px 30px; }
+  .wrap { gap: 10px; }
+  .wrap > .console { order: 0; }
+  .wrap > header { order: 4; } .wrap > .modes { order: 5; } #sprintCard { order: 6; }
+  .console { grid-template-columns: auto 200px; justify-content: center; grid-template-areas: "amp dock" "amp fs"; align-items: start; gap: 4px 10px; }
+  .console > .amp { grid-area: amp; padding: 8px; border-radius: 10px; }
+  .console > .dock { grid-area: dock; }
+  .statusline { margin-top: 4px; padding-top: 4px; font-size: 11px; gap: 2px 10px; }
+  .dock { padding: 8px; gap: 8px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "radio" "tx"; }
+  .dk-name, #xBands, #freqShow { display: none; }
+  .dk-radio { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  #xBandSel { display: block; width: 100%; }
+  .dk-f input { flex: 1; min-width: 0; width: auto; font: 500 16px var(--f-mono); }
+  .dk-f .btn { padding: 6px 8px; }
+  .dk-tx { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .dk-tx .keybtn { padding: 12px 6px; }
+  .fsbtn { grid-area: fs; justify-self: stretch; }
+  .fsbtn.ok { display: block; }
+}
+
+/* transceiver */
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bandbtns button { font: 600 14px var(--f-display); min-width: 44px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.bandbtns button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.freq { font: 500 30px var(--f-mono); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.freq small { font-size: 15px; color: var(--muted); }
+label { font-weight: 700; font-size: 14px; }
+.field { display: grid; gap: 4px; }
+input[type="number"], select { font: 400 15px var(--f-body); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); max-width: 100%; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.btn { font: 600 14px var(--f-display); letter-spacing: 0.03em; padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.keybtn { width: 100%; padding: 16px; font: 700 17px var(--f-display); letter-spacing: 0.05em; border-radius: 8px; border: 2px solid var(--bad); color: var(--bad); background: transparent; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.keybtn.on { background: var(--bad); color: #fff; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; font-family: var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* procedure + log */
+ol.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; counter-reset: s; }
+ol.steps li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; counter-increment: s; }
+ol.steps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 600 13px var(--f-display); border: 1.5px solid var(--line); color: var(--muted); }
+ol.steps li.done::before { content: "✓"; background: var(--ok); border-color: var(--ok); color: var(--surface); }
+ol.steps li.now::before { border-color: var(--accent); color: var(--accent); }
+ol.steps li span { min-width: 0; }
+ol.steps .cite, .log .cite { font-size: 12px; color: var(--muted); }
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 340px; overflow: auto; }
+.log li { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.log .tag { font: 700 11px var(--f-display); letter-spacing: 0.08em; padding: 1px 6px; border-radius: 4px; align-self: start; color: var(--surface); background: var(--muted); }
+.log .tag.trip, .log .tag.unsafe { background: var(--bad); }
+.log .tag.warn { background: var(--warn); }
+.log .t { grid-column: 2; font: 400 12px var(--f-mono); color: var(--muted); }
+.empty { color: var(--muted); font-size: 14px; }
+
+/* sprint */
+.sprint { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; align-items: start; }
+.timer { font: 500 46px var(--f-mono); font-variant-numeric: tabular-nums; line-height: 1; }
+.verdict { font: 600 16px var(--f-display); }
+.verdict.ok { color: var(--ok); } .verdict.bad { color: var(--bad); }
+.target { font-size: 17px; }
+
+/* x-ray */
+details.card > summary { cursor: pointer; font: 600 20px var(--f-display); list-style: none; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::after { content: "Show"; font: 600 13px var(--f-display); color: var(--accent); }
+details.card[open] > summary::after { content: "Hide"; }
+.xgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+.xgrid figure { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.xgrid figcaption { font-size: 13px; color: var(--muted); }
+svg.chart { width: 100%; max-width: 100%; height: auto; display: block; }
+.chart .grid { fill: none; stroke: var(--line); stroke-width: 0.006; }
+.chart .gcirc { fill: none; stroke: var(--muted); stroke-width: 0.008; stroke-dasharray: 0.02 0.02; }
+.chart .target { fill: none; stroke: var(--ok); stroke-width: 0.02; }
+.chart .rim { fill: none; stroke: var(--ink); stroke-width: 0.012; }
+.chart .pt { fill: var(--accent); stroke: var(--surface); stroke-width: 0.012; }
+.chart .trail { fill: none; stroke: var(--accent); stroke-opacity: 0.45; stroke-width: 0.012; }
+.chart text { fill: var(--muted); font-family: var(--f-mono); }
+.sch line, .sch path, .sch polyline { stroke: var(--ink); stroke-width: 2; fill: none; }
+.sch .lbl { fill: var(--ink); font: 600 13px var(--f-display); }
+.sch .val { fill: var(--accent); font: 500 12px var(--f-mono); }
+.sch .sub { fill: var(--muted); font: 400 11px var(--f-body); }
+.pbars { display: grid; grid-template-columns: auto 1fr auto; gap: 6px 10px; align-items: center; font-size: 13px; }
+.pbars .track { height: 12px; background: var(--chip); border-radius: 3px; overflow: hidden; }
+.pbars .fill { height: 100%; width: 0; background: var(--accent); }
+.pbars .fill.heat { background: var(--warn); } .pbars .fill.heat.over { background: var(--bad); }
+.pbars .fill.del { background: var(--ok); } .pbars .fill.rfl { background: var(--bad); }
+.pbars output { font-family: var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; min-width: 64px; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 13px var(--f-display); letter-spacing: 0.04em; color: var(--muted); }
+td.num { font-family: var(--f-mono); white-space: nowrap; }
+.src { font: 600 11px var(--f-display); letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid currentColor; white-space: nowrap; }
+.src.placeholder { color: var(--warn); } .src.manual, .src.datasheet { color: var(--ok); } .src.derived { color: var(--accent); } .src.measured { color: var(--ok); } .src.ideal { color: var(--muted); }
+#presetTable tr.here td { background: var(--chip); font-weight: 600; }
+#presetTable td.here-val { color: var(--accent); }
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 80ch; }
+footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">W3USR · University of Scranton Amateur Radio Club</p>
+      <h1>ACOM 1010 Trainer</h1>
+    </div>
+    <span class="pill warn" id="calPill" title="Model values are placeholders until calibrated on the W3USR amplifier">Uncalibrated model</span>
+  </header>
+  <p class="lede">Tune the station's HF amplifier the way <strong>Manual §4.5</strong> describes: select the antenna, set the band, preset from Table 4-1, then peak forward power with TUNE and center the green TRI light with LOAD. The model's presets follow the manual's table, but its component values are <strong>placeholders</strong> until they are measured on the W3USR amplifier, so expect the feel to differ from the real one. This is a training aid; it does not authorize anyone to operate the station.</p>
+
+  <div class="modes" role="tablist" aria-label="Mode">
+    <button role="tab" id="tabPractice" aria-selected="true">Practice</button>
+    <button role="tab" id="tabSprint" aria-selected="false">Band-change sprint</button>
+  </div>
+
+  <section class="card" id="sprintCard" hidden aria-label="Band-change sprint">
+    <div class="sprint">
+      <div class="field">
+        <h2>Band-change sprint</h2>
+        <p class="target" id="sprintTarget">Press Start. You begin tuned on one band and must move to another, tuned, at 550 W forward or more.</p>
+        <p class="note">Any unsafe action or protection trip disqualifies the run. Hold the tuned state, keyed, for one second to finish.</p>
+        <div class="row"><button class="btn primary" id="sprintStart">Start</button></div>
+      </div>
+      <div class="field">
+        <span class="timer" id="sprintTime">0.0 s</span>
+        <span class="verdict" id="sprintVerdict" aria-live="polite"></span>
+      </div>
+      <div class="field">
+        <h2>Your best times <small>this browser only</small></h2>
+        <dl class="kv" id="bestList"></dl>
+      </div>
+    </div>
+  </section>
+
+  <div class="console" id="console">
+  <section class="amp" aria-label="ACOM 1010 front panel">
+    <div class="dragread" id="dragRead" hidden></div>
+    <div class="facebox" id="faceBox"><div class="face">
+      <div class="a-title">HF LINEAR AMPLIFIER 1010<small>SIMULATED · NOT THE REAL PANEL</small><button class="skip" id="skipBtn" style="visibility:hidden">Skip warm-up<small>practice only</small></button></div>
+      <div class="a-band knobwrap">
+        <div class="a-lbl">BAND</div>
+        <svg class="knob band" id="bandKnob" viewBox="-150 -115 300 230" role="slider" tabindex="0" aria-label="Band switch" aria-valuemin="0" aria-valuemax="6"></svg>
+      </div>
+      <div class="a-disp">
+        <div class="bars" id="bars" aria-hidden="true"></div>
+        <div class="readline" id="readline" aria-live="off"></div>
+        <div class="antcards"><span>A1: 10/15/20 m<br>Yagi Beam</span><span>A2: 40/80 m<br>Fan Dipole</span></div>
+      </div>
+      <div class="a-load knobwrap">
+        <div class="tri" aria-hidden="true"><span class="dot a" id="triL"></span><span class="dot" id="triC"></span><span class="dot a" id="triR"></span></div>
+        <div class="a-lbl">LOAD</div>
+        <svg class="knob" id="loadKnob" viewBox="-115 -115 230 230" role="slider" tabindex="0" aria-label="LOAD capacitor" aria-valuemin="0" aria-valuemax="100"></svg>
+        <div class="nudge"><button id="loadDn" aria-label="LOAD down 0.5">−</button><output id="loadOut" class="mono"></output><button id="loadUp" aria-label="LOAD up 0.5">+</button></div>
+      </div>
+      <div class="a-tune knobwrap">
+        <div class="a-lbl">TUNE</div>
+        <svg class="knob" id="tuneKnob" viewBox="-115 -115 230 230" role="slider" tabindex="0" aria-label="TUNE capacitor" aria-valuemin="0" aria-valuemax="100"></svg>
+        <div class="nudge"><button id="tuneDn" aria-label="TUNE down 0.5">−</button><output id="tuneOut" class="mono"></output><button id="tuneUp" aria-label="TUNE up 0.5">+</button></div>
+      </div>
+      <div class="a-btns">
+        <div class="pbtn"><div class="leds"><span class="dot" id="ledOper"></span></div><button id="btnOper" aria-label="OPER: operate or standby"></button><span class="lbl">OPER</span></div>
+        <div class="pbtn"><div class="leds"><span class="dot" id="ledRtty"></span></div><button id="btnRtty" aria-label="RTTY mode"></button><span class="lbl">RTTY</span></div>
+        <div class="pbtn"><div class="leds"><span class="dot" id="ledA1"></span><span class="dot" id="ledA2"></span></div><button id="btnAnt" aria-label="Antenna A1 or A2"></button><span class="lbl"><span>A1</span><span>A2</span></span></div>
+        <div class="pbtn"><div class="leds"><span class="dot r" id="ledTx"></span></div><span style="height:40px"></span><span class="lbl">TX</span></div>
+        <div class="pbtn onbtn"><div class="leds"><span class="dot" id="ledOn"></span></div><button id="btnOn" aria-label="Power"></button><span class="lbl">ON</span></div>
+      </div>
+    </div></div>
+    <div class="statusline" id="statusline" aria-live="polite"></div>
+  </section>
+
+  <section class="dock" id="dock" aria-label="Transceiver">
+    <div class="dk-radio">
+      <span class="dk-name">Transceiver<small>simplified IC-7610, CW carrier</small></span>
+      <div class="row bandbtns" id="xBands" role="group" aria-label="Transceiver band"></div>
+      <select id="xBandSel" aria-label="Transceiver band"></select>
+      <div class="freq" id="freqShow" aria-live="off"></div>
+      <div class="dk-f">
+        <button class="btn" id="fDn" aria-label="Down 5 kHz">−5</button>
+        <input type="number" id="freqIn" aria-label="Frequency in kHz" step="1" inputmode="numeric">
+        <button class="btn" id="fUp" aria-label="Up 5 kHz">+5</button>
+      </div>
+    </div>
+    <div class="dk-tx">
+      <div class="field">
+        <div class="row" style="justify-content:space-between;gap:6px">
+          <label for="drive">Drive <span class="mono" id="driveOut"></span></label>
+          <label class="row" style="font-weight:400;font-size:13px;gap:5px"><input type="checkbox" id="latch"> Latch</label>
+        </div>
+        <input type="range" id="drive" min="0" max="100" step="1" value="0">
+      </div>
+      <button class="keybtn" id="keyBtn" aria-pressed="false">HOLD TO TRANSMIT</button>
+    </div>
+  </section>
+  <button class="btn fsbtn" id="fsBtn">Full screen</button>
+  </div>
+
+  <div class="grid2">
+    <section class="card" aria-label="Rear panel">
+      <h2>Rear panel <small>what is connected</small></h2>
+      <div class="field"><label for="conn1">ANT1</label><select id="conn1"></select></div>
+      <div class="field"><label for="conn2">ANT2</label><select id="conn2"></select></div>
+      <p class="note" id="connNote"></p>
+      <div class="field">
+        <label for="s1p">Load a measured sweep (.s1p)</label>
+        <div class="row">
+          <select id="s1pSlot" aria-label="Connect the sweep to"><option value="1">to ANT1</option><option value="2">to ANT2</option></select>
+          <input type="file" id="s1p" accept=".s1p,.S1P,.txt">
+        </div>
+        <span class="note">Sweep with the RigExpert or NanoVNA <strong>at the amplifier's ANT connector</strong>, so the feedline is included. The file stays in this browser.</span>
+        <span class="note" id="s1pMsg" aria-live="polite"></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="card" aria-label="Tuning procedure">
+      <h2>Tuning procedure <small>Manual §4.5</small></h2>
+      <ol class="steps" id="steps"></ol>
+      <p class="note">Never switch BAND, A1-A2 or RTTY while transmitting. Never more than one minute of continuous drive when tuning.</p>
+    </section>
+    <section class="card" aria-label="Events">
+      <h2>Events <small>newest first</small></h2>
+      <ul class="log" id="log"><li class="empty">Nothing yet. Power on the amplifier to begin.</li></ul>
+    </section>
+  </div>
+
+  <section class="card" aria-label="Approximate tuning preset">
+    <h2>Approximate tuning preset <small>Manual Table 4-1</small></h2>
+    <p class="note">Where to set TUNE and LOAD before the first key-down. Each range runs from the lower band edge to the upper one; between the edges, set the dials in proportion. The table gets you close enough for the TRI to light; the final settings come from peaking FWD and centering the TRI. The highlighted row is the transceiver's band.</p>
+    <div class="tablewrap"><table id="presetTable"><thead><tr><th>Band</th><th>MHz</th><th>BAND switch</th><th>LOAD dial</th><th>TUNE dial</th><th>At your frequency</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <details class="card" id="xray" open>
+    <summary>Inside the amplifier <span class="note" style="font:400 13px var(--f-body)">what the knobs are doing, live</span></summary>
+    <div class="xgrid">
+      <figure>
+        <svg class="chart" id="smith" viewBox="-1.12 -1.12 2.24 2.24" role="img" aria-label="Smith chart of the plate load"></svg>
+        <figcaption>The load the tube sees, normalized to its optimum (center). TRI is centered on the green circle. TUNE moves the point along the dashed circles; LOAD moves it across them (Manual §4.5c).</figcaption>
+      </figure>
+      <figure>
+        <svg class="sch" id="sch" viewBox="0 0 440 210" role="img" aria-label="Pi-L output network with live values"></svg>
+        <figcaption>The Pi-L output network (Manual §5.5). TUNE and LOAD set the two variable capacitors; BAND selects the inductor taps. Values are model placeholders.</figcaption>
+        <div class="pbars" id="pbars"></div>
+      </figure>
+      <figure>
+        <dl class="kv" id="xkv"></dl>
+      </figure>
+    </div>
+  </details>
+
+  <details class="card" id="paramCard">
+    <summary>Model parameters and their sources</summary>
+    <p class="note">Every value the simulator uses, with where it came from. Placeholders are replaced as the club measures the real amplifier and antennas. The dial law for each band position is fitted so the optimum into 50 Ω falls on Manual Table 4-1.</p>
+    <div class="tablewrap"><table id="ptable"><thead><tr><th>Parameter</th><th>Value</th><th>Source</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+  </details>
+
+  <footer>
+    <p>Sources: ACOM 1010 User's Manual (July 2023) and Svetlana 4CX800A data, cited by section. ACOM is not affiliated with this trainer.</p>
+    <p>Source code, requirements and licenses (MIT software, CC BY 4.0 documentation): <a href="https://github.com/w3usr/amp-trainer">github.com/w3usr/amp-trainer</a>.</p>
+    <p>Built with AI assistance (Claude) for the University of Scranton Amateur Radio Club, W3USR; pending review by Nathaniel A. Frissell, W2NAF.</p>
+  </footer>
+</div>
+
+<script>
+/*MODEL*/
+</script>
+<script>
+(() => {
+  const M = AmpModel;
+  const $ = (id) => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+  const fmtT = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+  let mode = 'practice';
+  const sprint = { running: false, t0: 0, target: null, held: 0, done: false, dq: null };
+  const events = [];
+  const sim = new M.Sim((e) => {
+    events.unshift(e); if (events.length > 60) events.pop();
+    renderLog();
+    if (sprint.running && (e.kind === 'unsafe' || e.kind === 'trip')) endSprint(false, e.text);
+  });
+
+  // ---------- knobs ----------
+  function dialKnob(svg, get, set) {
+    for (let v = 0; v <= 100; v += 2) {
+      const a = (-135 + 2.7 * v) * Math.PI / 180, big = v % 10 === 0;
+      const r1 = 76, r2 = big ? 90 : 84;
+      mk('line', { x1: r1 * Math.sin(a), y1: -r1 * Math.cos(a), x2: r2 * Math.sin(a), y2: -r2 * Math.cos(a), stroke: '#e8ebee', 'stroke-width': big ? 3 : 2 }, svg);
+      if (big) {
+        const t = v === 0 ? 'MIN' : v === 100 ? 'MAX' : String(v), r = v === 0 || v === 100 ? 103 : 102;
+        const tx = mk('text', { x: r * Math.sin(a), y: -r * Math.cos(a) + 5, 'text-anchor': 'middle', 'font-size': v === 0 || v === 100 ? 13 : 15 }, svg); tx.textContent = t;
+      }
+    }
+    knobBody(svg);
+    const ptr = mk('g', {}, svg);
+    mk('line', { x1: 0, y1: -8, x2: 0, y2: -66, stroke: '#f4f6f8', 'stroke-width': 4.5, 'stroke-linecap': 'round' }, ptr);
+    const upd = () => { ptr.setAttribute('transform', `rotate(${-135 + 2.7 * get()})`); svg.setAttribute('aria-valuenow', get().toFixed(1)); };
+    const ang = (e) => { const b = svg.getBoundingClientRect(); return Math.atan2(e.clientX - (b.left + b.width / 2), -(e.clientY - (b.top + b.height / 2))) * 180 / Math.PI; };
+    // A mouse turns the knob by circling it. A finger on a small knob slides instead: right or up turns
+    // clockwise, 0.2 dial divisions per pixel, and the setting is shown while the finger hides the dial.
+    let last = null, touch = null;
+    svg.addEventListener('pointerdown', (e) => {
+      try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+      if (e.pointerType === 'touch') touch = { x: e.clientX, y: e.clientY }; else last = ang(e);
+      dragRead(svg, get); e.preventDefault();
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (touch) { set(get() + ((e.clientX - touch.x) - (e.clientY - touch.y)) * 0.2); touch = { x: e.clientX, y: e.clientY }; dragRead(svg, get); return; }
+      if (last == null) return;
+      const a = ang(e); let d = a - last; if (d > 180) d -= 360; if (d < -180) d += 360; last = a;
+      set(get() + d / 2.7 * (e.shiftKey ? 0.25 : 1));
+    });
+    const stop = () => { last = null; touch = null; dragRead(null); };
+    svg.addEventListener('pointerup', stop); svg.addEventListener('pointercancel', stop);
+    svg.addEventListener('wheel', (e) => { e.preventDefault(); set(get() - Math.sign(e.deltaY) * (e.shiftKey ? 0.2 : 1)); }, { passive: false });
+    svg.addEventListener('keydown', (e) => {
+      const step = e.shiftKey ? 0.2 : 1, k = { ArrowUp: step, ArrowRight: step, ArrowDown: -step, ArrowLeft: -step, PageUp: 5, PageDown: -5 }[e.key];
+      if (k != null) { set(get() + k); e.preventDefault(); } else if (e.key === 'Home') { set(0); e.preventDefault(); } else if (e.key === 'End') { set(100); e.preventDefault(); }
+    });
+    return upd;
+  }
+  function dragRead(svg, get) {
+    const el = $('dragRead');
+    if (!svg) { el.hidden = true; return; }
+    const v = get();
+    el.textContent = typeof v === 'string' ? v : `${svg.getAttribute('aria-label').split(' ')[0]} ${v.toFixed(1)}`;
+    el.hidden = false;
+  }
+  function knobBody(svg) {
+    const id = svg.id + 'G';
+    const defs = mk('defs', {}, svg), g = mk('radialGradient', { id, cx: '38%', cy: '30%', r: '75%' }, defs);
+    mk('stop', { offset: '0%', 'stop-color': '#3d4247' }, g); mk('stop', { offset: '100%', 'stop-color': '#0b0c0d' }, g);
+    mk('circle', { r: 72, fill: '#070808' }, svg);
+    for (let i = 0; i < 48; i++) { const a = i * 7.5 * Math.PI / 180; mk('line', { x1: 66 * Math.sin(a), y1: -66 * Math.cos(a), x2: 71 * Math.sin(a), y2: -71 * Math.cos(a), stroke: '#24282b', 'stroke-width': 3 }, svg); }
+    mk('circle', { r: 62, fill: `url(#${id})`, stroke: '#000', 'stroke-width': 2 }, svg);
+  }
+  function bandKnob(svg) {
+    const ang = (i) => -90 + 30 * i;
+    M.POSITIONS.forEach((p, i) => {
+      const a = ang(i) * Math.PI / 180;
+      mk('line', { x1: 78 * Math.sin(a), y1: -78 * Math.cos(a), x2: 88 * Math.sin(a), y2: -88 * Math.cos(a), stroke: '#e8ebee', 'stroke-width': 3 }, svg);
+      const t = mk('text', { x: 101 * Math.sin(a) + (i === 0 ? -4 : i === 6 ? 4 : 0), y: -101 * Math.cos(a) + 5, 'text-anchor': i < 3 ? 'end' : i > 3 ? 'start' : 'middle', 'font-size': 15 }, svg);
+      t.textContent = p.label;
+      if (i === 0 || i === 6) t.setAttribute('text-anchor', 'middle');
+    });
+    knobBody(svg);
+    const ptr = mk('g', {}, svg);
+    mk('rect', { x: -14, y: -60, width: 28, height: 120, rx: 10, fill: '#1c1f22', stroke: '#000' }, ptr);
+    mk('line', { x1: 0, y1: -4, x2: 0, y2: -70, stroke: '#f4f6f8', 'stroke-width': 4.5, 'stroke-linecap': 'round' }, ptr);
+    const upd = () => { ptr.setAttribute('transform', `rotate(${ang(sim.pos)})`); svg.setAttribute('aria-valuenow', sim.pos); svg.setAttribute('aria-valuetext', M.POSITIONS[sim.pos].label + ' MHz'); };
+    const angOf = (e) => { const b = svg.getBoundingClientRect(); return { a: Math.atan2(e.clientX - (b.left + b.width / 2), -(e.clientY - (b.top + b.height / 2))) * 180 / Math.PI, x: e.clientX - (b.left + b.width / 2) }; };
+    let st = null;
+    const step = (k) => { const n = Math.max(0, Math.min(6, sim.pos + k)); if (n !== sim.pos) sim.setPos(n); };
+    const bandRead = () => 'BAND ' + M.POSITIONS[sim.pos].label;
+    svg.addEventListener('pointerdown', (e) => {
+      try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+      st = { ...angOf(e), moved: false, acc: 0, touch: e.pointerType === 'touch', px: e.clientX, py: e.clientY };
+      if (st.touch) dragRead(svg, bandRead);
+      e.preventDefault();
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (!st) return;
+      if (st.touch) {
+        // Sliding a finger 36 px right or up clicks the switch one position clockwise.
+        st.acc += (e.clientX - st.px) - (e.clientY - st.py); st.px = e.clientX; st.py = e.clientY;
+        if (Math.abs(st.acc) >= 36) { st.moved = true; step(Math.sign(st.acc)); st.acc = 0; dragRead(svg, bandRead); }
+        return;
+      }
+      const n = angOf(e); let d = n.a - st.a; if (d > 180) d -= 360; if (d < -180) d += 360; st.a = n.a; st.acc += d;
+      if (Math.abs(st.acc) >= 22) { st.moved = true; step(Math.sign(st.acc)); st.acc = 0; }
+    });
+    svg.addEventListener('pointerup', (e) => { if (st && !st.moved && Math.abs(st.acc) < 6) step(angOf(e).x < 0 ? -1 : 1); st = null; dragRead(null); });
+    svg.addEventListener('pointercancel', () => { st = null; dragRead(null); });
+    svg.addEventListener('keydown', (e) => { const k = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key]; if (k) { sim.setPos(sim.pos + k); e.preventDefault(); } });
+    return upd;
+  }
+  const clampDial = (v) => Math.round(Math.max(0, Math.min(100, v)) * 10) / 10;
+  const updTune = dialKnob($('tuneKnob'), () => sim.tune, (v) => { sim.tune = clampDial(v); });
+  const updLoad = dialKnob($('loadKnob'), () => sim.load, (v) => { sim.load = clampDial(v); });
+  const updBand = bandKnob($('bandKnob'));
+  $('tuneDn').onclick = () => { sim.tune = clampDial(sim.tune - 0.5); }; $('tuneUp').onclick = () => { sim.tune = clampDial(sim.tune + 0.5); };
+  $('loadDn').onclick = () => { sim.load = clampDial(sim.load - 0.5); }; $('loadUp').onclick = () => { sim.load = clampDial(sim.load + 0.5); };
+
+  // ---------- LED bar-graphs ----------
+  const bars = $('bars'), fwd = [], rfl = [], warn = {};
+  const cell = (cls, col, row, txt) => { const d = document.createElement('span'); d.className = cls; d.style.gridColumn = col; d.style.gridRow = row; if (txt != null) d.textContent = txt; bars.appendChild(d); return d; };
+  [[1, '50'], [4, '200'], [8, '400'], [12, '600'], [16, '800']].forEach(([i, t]) => cell('sc', i + 1, 1, t));
+  cell('rl', 1, 2, 'FWD');
+  for (let i = 1; i <= 16; i++) fwd.push(cell('led' + (i >= 15 ? ' r' : ''), i + 1, 2));
+  [[1, '30'], [4, '120'], [8, '240']].forEach(([i, t]) => cell('sc', i + 1, 3, t));
+  [['G1', 11], ['G2', 12], ['IP', 13], ['F', 14]].forEach(([t, c]) => { const s = cell('warnlbl', `${c + 1} / span 1`, 3, t); s.style.gridColumn = String(c + 2); });
+  cell('rl', 1, 4, 'RFL');
+  for (let i = 1; i <= 8; i++) rfl.push(cell('led' + (i >= 7 ? ' r' : ''), i + 1, 4));
+  [['g1', 11], ['g2', 12], ['ip', 13], ['f', 14]].forEach(([k, c]) => { warn[k] = cell('led ' + (k === 'f' ? 'r' : 'a'), c + 2, 4); });
+
+  // ---------- transceiver ----------
+  const xb = $('xBands');
+  M.BANDS.forEach((b) => {
+    const btn = document.createElement('button'); btn.textContent = b.id; btn.setAttribute('aria-label', b.id + ' meters');
+    btn.onclick = () => setFreq(Math.round((b.lo + b.hi) / 2 / 5) * 5 + (b.id === '80' ? 0 : 0));
+    b.btn = btn; xb.appendChild(btn);
+    const o = document.createElement('option'); o.value = b.id; o.textContent = b.id + ' m'; $('xBandSel').appendChild(o);
+  });
+  { const o = document.createElement('option'); o.value = ''; o.textContent = '—'; o.disabled = true; $('xBandSel').appendChild(o); }
+  $('xBandSel').addEventListener('change', (e) => { const b = M.BANDS.find((x) => x.id === e.target.value); if (b) b.btn.onclick(); });
+  function setFreq(k) { sim.freq = Math.max(1800, Math.min(29700, Math.round(k))); }
+  $('fDn').onclick = () => setFreq(sim.freq - 5); $('fUp').onclick = () => setFreq(sim.freq + 5);
+  $('freqIn').addEventListener('change', (e) => { const v = parseFloat(e.target.value); if (!isNaN(v)) setFreq(v); });
+  $('drive').addEventListener('input', (e) => { sim.drive = +e.target.value; });
+  const keyBtn = $('keyBtn');
+  const unkey = () => { sim.keyHeld = false; };
+  for (const kb of [keyBtn]) {
+    kb.addEventListener('pointerdown', (e) => { kb.setPointerCapture(e.pointerId); sim.keyHeld = true; e.preventDefault(); });
+    kb.addEventListener('pointerup', unkey); kb.addEventListener('pointercancel', unkey); kb.addEventListener('lostpointercapture', unkey);
+    kb.addEventListener('contextmenu', (e) => e.preventDefault());
+    kb.addEventListener('keydown', (e) => { if (e.key === 'Enter') { sim.keyHeld = true; e.preventDefault(); } });
+    kb.addEventListener('keyup', (e) => { if (e.key === 'Enter') unkey(); });
+  }
+  $('latch').addEventListener('change', (e) => { sim.latch = e.target.checked; });
+  const typing = (t) => t && (t.tagName === 'INPUT' && t.type !== 'checkbox' && t.type !== 'range' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA');
+  window.addEventListener('keydown', (e) => { if (e.code === 'Space' && !typing(e.target)) { e.preventDefault(); if (!e.repeat) sim.keyHeld = true; } });
+  window.addEventListener('keyup', (e) => { if (e.code === 'Space' && !typing(e.target)) { e.preventDefault(); sim.keyHeld = false; } });
+  window.addEventListener('blur', unkey);
+
+  // ---------- panel buttons ----------
+  $('btnOn').onclick = () => sim.setPower(!sim.power);
+  $('btnOper').onclick = () => sim.pressOper();
+  $('btnRtty').onclick = () => sim.pressRtty();
+  $('btnAnt').onclick = () => sim.pressAnt();
+
+  // ---------- phone: scaled face and control dock ----------
+  const phone = matchMedia('(max-width: 760px)'), side = matchMedia('(orientation: landscape) and (max-height: 520px)');
+  const cons = $('console'), faceBox = $('faceBox'), face = faceBox.firstElementChild;
+  function fitConsole() {
+    // Sideways phones use the wide layout (it suits a short box) with the phone's larger lettering.
+    const lying = side.matches, small = phone.matches || lying, D = small && !lying ? 700 : 1100;
+    faceBox.classList.toggle('phone', small);
+    face.style.width = D + 'px';
+    const amp = faceBox.parentElement, cs = getComputedStyle(amp), padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const beside = lying ? $('dock').offsetWidth + parseFloat(getComputedStyle(cons).columnGap) : 0;
+    const W = cons.clientWidth - beside - padX, fh = face.offsetHeight;
+    // Everything stacked with the face (the radio, unless it sits beside it), plus the title above, must fit too.
+    const rest = (lying ? amp.offsetHeight : cons.offsetHeight) - faceBox.offsetHeight;
+    const above = Math.min(cons.getBoundingClientRect().top + scrollY, small ? 150 : 200);
+    const k = Math.max(0.3, Math.min(W / D, (innerHeight - rest - above - 8) / fh));
+    face.style.transform = `scale(${k})`;
+    faceBox.style.height = (fh * k).toFixed(1) + 'px';
+    // The panel's box hugs the scaled face, so a short window gives a smaller panel, not a wide empty one.
+    amp.style.width = (D * k + padX).toFixed(1) + 'px';
+  }
+  let fitQueued = false;
+  const queueFit = () => { if (!fitQueued) { fitQueued = true; requestAnimationFrame(() => { fitQueued = false; fitConsole(); }); } };
+  const ro = new ResizeObserver(queueFit); ro.observe(faceBox); ro.observe(face); ro.observe($('dock'));
+  addEventListener('resize', queueFit); phone.addEventListener('change', queueFit); side.addEventListener('change', queueFit);
+  // Full screen gives a sideways phone back the height the browser bars take. Offered only where the frame allows it.
+  const fsBtn = $('fsBtn'), root = document.documentElement;
+  if (document.fullscreenEnabled && root.requestFullscreen) fsBtn.classList.add('ok');
+  fsBtn.onclick = () => { if (document.fullscreenElement) document.exitFullscreen(); else root.requestFullscreen().then(() => screen.orientation?.lock?.('landscape').catch(() => {})).catch(() => {}); };
+  document.addEventListener('fullscreenchange', () => { fsBtn.textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen'; queueFit(); });
+
+  // ---------- rear panel ----------
+  function fillConn() {
+    for (const a of [1, 2]) {
+      const sel = $('conn' + a); sel.innerHTML = '';
+      for (const [k, L] of Object.entries(sim.loads)) { const o = document.createElement('option'); o.value = k; o.textContent = L.name + (L.src === 'placeholder' ? ' (placeholder)' : ''); sel.appendChild(o); }
+      sel.value = sim.conn[a];
+    }
+    connNote();
+  }
+  function connNote() {
+    const n = [1, 2].map((a) => { const L = sim.loads[sim.conn[a]]; return L.note ? `ANT${a}: ${L.note}` : ''; }).filter(Boolean);
+    $('connNote').textContent = n.join(' ');
+  }
+  for (const a of [1, 2]) $('conn' + a).addEventListener('change', (e) => {
+    if (sim.keyed && sim.drive > 0) { sim.emit('warn', 'Rear-panel cable changed while transmitting. Unkey first.'); }
+    sim.conn[a] = e.target.value; connNote();
+  });
+  $('s1p').addEventListener('change', async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const L = M.parseS1P(await f.text(), f.name), key = 'file:' + f.name, a = +$('s1pSlot').value;
+      sim.loads[key] = L; sim.conn[a] = key; fillConn();
+      $('s1pMsg').textContent = `Loaded ${f.name} on ANT${a}. ${L.note}`;
+    } catch (err) { $('s1pMsg').textContent = 'Could not read that file: ' + err.message; }
+    e.target.value = '';
+  });
+  fillConn();
+
+  // ---------- procedure ----------
+  const STEPS = [
+    ['Power on and let the amplifier warm up (150 s). It enters OPERATE when the OPER LED stops flashing.', 'Manual §4.1'],
+    ['Select the antenna for the band before anything else: A1 for 20/15/10 m, A2 for 80/40 m.', 'Manual §4.5'],
+    ['With no drive, set BAND to match the transceiver frequency.', 'Manual §4.5'],
+    ['Preset TUNE and LOAD from Table 4-1.', 'Manual Table 4-1'],
+    ['Key down at 10–20 W and peak forward power with TUNE.', 'Manual §4.5b(1)–(2)'],
+    ['Turn LOAD the way the TRI points until only the green center LED is lit.', 'Manual §4.5b(3), Fig. 4-1'],
+    ['Raise drive toward rated output; peak TUNE and center LOAD again.', 'Manual §4.5b(4)'],
+  ];
+  const stepsEl = $('steps');
+  STEPS.forEach(([t, c]) => { const li = document.createElement('li'); li.innerHTML = `<span>${t} <span class="cite">${c}</span><br><span class="mono cite"></span></span>`; stepsEl.appendChild(li); });
+  const presetRows = M.BANDS.map((b) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${b.id} m</td><td class="num">${(b.lo / 1000).toFixed(3)} – ${(b.hi / 1000).toFixed(3)}</td><td class="num">${M.POSITIONS[b.pos].label}</td><td class="num">${b.load[0]} – ${b.load[1]}</td><td class="num">${b.tune[0]} – ${b.tune[1]}</td><td class="num here-val"></td>`;
+    $('presetTable').querySelector('tbody').appendChild(tr);
+    return { b, tr, cell: tr.lastChild };
+  });
+  let presetKey = '';
+  function presetState() {
+    const b = M.bandOf(sim.freq), pr = M.preset(sim.freq), key = `${sim.freq}`;
+    if (key === presetKey) return;
+    presetKey = key;
+    for (const row of presetRows) {
+      const on = row.b === b;
+      row.tr.classList.toggle('here', on);
+      row.cell.textContent = on ? `${(sim.freq / 1000).toFixed(3)} MHz: LOAD ${pr.load.toFixed(0)}, TUNE ${pr.tune.toFixed(0)}` : '';
+    }
+  }
+  function stepState() {
+    presetState();
+    const r = sim.r, b = M.bandOf(sim.freq), pr = M.preset(sim.freq), tx = sim.keyed && sim.drive > 0;
+    const swr = M.swrOf(sim.ZL());
+    const s1 = sim.operating;
+    const s2 = swr <= 3;
+    const s3 = !!b && b.pos === sim.pos;
+    const s4 = !!pr && Math.abs(sim.tune - pr.tune) <= 6 && Math.abs(sim.load - pr.load) <= 6;
+    const peaked = tx && sim.operating && Math.abs(r.tdet) < 0.15 && r.Pfwd >= 20;
+    const s6 = tx && sim.operating && r.tri === 'C';
+    const s7 = s6 && peaked && r.Pfwd >= 550;
+    const done = [s1, s2, s3, s4 || (peaked && s6), peaked, s6, s7];
+    const info = [
+      sim.power && !sim.warm ? `Warm-up: ${Math.ceil(sim.warmLeft)} s left` : '',
+      `Selected ANT${sim.ant}: ${sim.connected().name}`,
+      b ? `Transceiver ${(sim.freq / 1000).toFixed(3)} MHz needs BAND ${M.POSITIONS[b.pos].label}` : 'Transceiver is outside the amateur bands',
+      pr ? `Preset here: TUNE ${pr.tune.toFixed(0)}, LOAD ${pr.load.toFixed(0)}` : '',
+      '', '', 'Rated output: 700 W PEP, 500 W carrier (Manual §6.1b)',
+    ];
+    const first = done.indexOf(false);
+    [...stepsEl.children].forEach((li, i) => { li.className = done[i] ? 'done' : i === first ? 'now' : ''; li.querySelector('.mono').textContent = info[i]; });
+  }
+
+  // ---------- event log ----------
+  function renderLog() {
+    const ul = $('log');
+    if (!events.length) { ul.innerHTML = '<li class="empty">Nothing yet. Power on the amplifier to begin.</li>'; return; }
+    ul.innerHTML = '';
+    for (const e of events.slice(0, 40)) {
+      const li = document.createElement('li');
+      const tag = document.createElement('span'); tag.className = 'tag ' + e.kind; tag.textContent = { info: 'INFO', warn: 'CAUTION', trip: 'TRIP', unsafe: 'UNSAFE' }[e.kind];
+      const tx = document.createElement('span'); tx.textContent = e.text;
+      const t = document.createElement('span'); t.className = 't'; t.textContent = fmtT(e.t) + (e.cite ? '  ·  ' + e.cite : '');
+      li.append(tag, tx, t); ul.appendChild(li);
+    }
+  }
+
+  // ---------- x-ray ----------
+  const smith = $('smith');
+  (() => {
+    mk('circle', { r: 1, class: 'rim' }, smith);
+    mk('line', { x1: -1, y1: 0, x2: 1, y2: 0, class: 'grid' }, smith);
+    for (const r of [0.33, 1, 3]) mk('circle', { cx: r / (1 + r), cy: 0, r: 1 / (1 + r), class: 'grid' }, smith);
+    for (const g of [0.33, 0.6, 1.6, 3]) mk('circle', { cx: -g / (1 + g), cy: 0, r: 1 / (1 + g), class: 'gcirc' }, smith);
+    mk('circle', { cx: -0.5, cy: 0, r: 0.5, class: 'target' }, smith);
+    const l1 = mk('text', { x: -0.98, y: -0.92, 'font-size': 0.085 }, smith); l1.textContent = 'R low';
+    const l2 = mk('text', { x: 0.62, y: -0.92, 'font-size': 0.085 }, smith); l2.textContent = 'R high';
+  })();
+  const trail = mk('polyline', { class: 'trail', points: '' }, smith);
+  const dotPt = mk('circle', { r: 0.045, class: 'pt' }, smith);
+  const trailPts = [];
+
+  const sch = $('sch');
+  sch.innerHTML = `
+    <text class="lbl" x="6" y="22">Tube plate</text>
+    <line x1="30" y1="60" x2="72" y2="60"/><circle cx="30" cy="60" r="4" fill="currentColor"/>
+    <line x1="72" y1="60" x2="72" y2="110"/><line x1="56" y1="110" x2="88" y2="110"/><line x1="56" y1="120" x2="88" y2="120"/><line x1="72" y1="120" x2="72" y2="150"/>
+    <path d="M72 60 H130 q8 -14 16 0 q8 -14 16 0 q8 -14 16 0 q8 -14 16 0 H250"/>
+    <line x1="250" y1="60" x2="250" y2="110"/><line x1="234" y1="110" x2="266" y2="110"/><line x1="234" y1="120" x2="266" y2="120"/><line x1="250" y1="120" x2="250" y2="150"/>
+    <path d="M250 60 H290 q7 -12 14 0 q7 -12 14 0 q7 -12 14 0 H392"/>
+    <line x1="392" y1="60" x2="392" y2="150"/><rect x="380" y="86" width="24" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
+    <line x1="40" y1="150" x2="410" y2="150"/>
+    <text class="lbl" x="28" y="178">TUNE</text><text class="val" id="vCp" x="28" y="196"></text>
+    <text class="lbl" x="150" y="36">Lp</text><text class="val" id="vLp" x="150" y="96"></text>
+    <text class="lbl" x="206" y="178">LOAD</text><text class="val" id="vCL" x="206" y="196"></text>
+    <text class="lbl" x="300" y="36">LL</text><text class="val" id="vLL" x="292" y="96"></text>
+    <text class="lbl" x="372" y="36">ANT</text><text class="val" id="vZL" x="300" y="178"></text>
+    <text class="sub" x="6" y="40" id="vZp"></text>`;
+  sch.style.color = 'var(--ink)';
+
+  const pb = $('pbars'), PB = {};
+  [['dc', 'DC input', ''], ['rf', 'RF from tube', ''], ['heat', 'Plate heat', 'heat'], ['del', 'Delivered', 'del'], ['rfl', 'Reflected', 'rfl']].forEach(([k, t, c]) => {
+    const l = document.createElement('span'); l.textContent = t;
+    const tr = document.createElement('div'); tr.className = 'track'; const f = document.createElement('div'); f.className = 'fill ' + c; tr.appendChild(f);
+    const o = document.createElement('output'); pb.append(l, tr, o); PB[k] = { f, o };
+  });
+  const xkv = $('xkv'), XK = {};
+  [['zp', 'Plate load'], ['q', 'vs optimum (TRI)'], ['td', 'TUNE off-peak'], ['vp', 'Plate RF swing'], ['vg', 'Grid drive'], ['ip', 'Plate + screen current'], ['ig2', 'Screen current'], ['ig1', 'Grid current'], ['eff', 'Plate efficiency'], ['zl', 'Antenna at ANT'], ['swr', 'Antenna SWR'], ['opt', 'Model optimum dials']].forEach(([k, t]) => {
+    const dt = document.createElement('dt'); dt.textContent = t; const dd = document.createElement('dd'); xkv.append(dt, dd); XK[k] = dd;
+  });
+  const cstr = (z) => `${z.re.toFixed(0)} ${z.im < 0 ? '−' : '+'} j${Math.abs(z.im).toFixed(0)} Ω`;
+  const pf = (C) => C >= 1e-9 ? (C * 1e9).toFixed(2) + ' nF' : (C * 1e12).toFixed(0) + ' pF';
+
+  function renderXray(r, tx) {
+    const z = { re: r.Zp.re / M.V('Ropt'), im: r.Zp.im / M.V('Ropt') };
+    const d = (z.re + 1) ** 2 + z.im ** 2, g = { re: (z.re * z.re + z.im * z.im - 1) / d, im: (2 * z.im) / d };
+    const x = g.re, y = -g.im;
+    dotPt.setAttribute('cx', x.toFixed(4)); dotPt.setAttribute('cy', y.toFixed(4));
+    const last = trailPts[trailPts.length - 1];
+    if (!last || Math.hypot(last[0] - x, last[1] - y) > 0.01) { trailPts.push([x, y]); if (trailPts.length > 60) trailPts.shift(); trail.setAttribute('points', trailPts.map((p) => p.map((v) => v.toFixed(3)).join(',')).join(' ')); }
+    $('vCp').textContent = pf(r.Ct) + ' + 11 pF tube'; $('vLp').textContent = (r.Lp * 1e6).toFixed(2) + ' µH';
+    $('vCL').textContent = pf(r.CL); $('vLL').textContent = (r.LL * 1e6).toFixed(2) + ' µH';
+    $('vZL').textContent = cstr(r.ZL); $('vZp').textContent = 'sees ' + cstr(r.Zp);
+    const sc = (w) => Math.min(100, (w / 1400) * 100).toFixed(1) + '%';
+    const vals = tx ? { dc: r.Pdc, rf: r.Prf, heat: r.Pdiss, del: r.Pdel, rfl: r.Prfl } : { dc: 0, rf: 0, heat: 0, del: 0, rfl: 0 };
+    for (const k in PB) { PB[k].f.style.width = sc(vals[k]); PB[k].o.textContent = vals[k].toFixed(0) + ' W'; }
+    PB.heat.f.classList.toggle('over', vals.heat > 800);
+    PB.heat.o.textContent = vals.heat.toFixed(0) + ' / 800 W';
+    XK.zp.textContent = cstr(r.Zp);
+    XK.q.textContent = `${(r.q * M.V('Ropt')).toFixed(0)} Ω / ${M.V('Ropt')} Ω`;
+    XK.td.textContent = Math.abs(r.tdet) < 0.05 ? 'peaked' : (r.tdet > 0 ? 'too much C, by ' : 'too little C, by ') + Math.abs(r.tdet).toFixed(2);
+    XK.vp.textContent = tx ? `${r.Vp.toFixed(0)} / ${r.vmax.toFixed(0)} V pk${r.sat > 0 ? ' (saturated)' : ''}` : '—';
+    XK.vg.textContent = tx ? r.Vg.toFixed(0) + ' V pk' : '—';
+    XK.ip.textContent = tx ? ((r.Ip + r.Ig2) * 1e3).toFixed(0) + ' mA' : '—';
+    XK.ig2.textContent = tx ? (r.Ig2 * 1e3).toFixed(0) + ' mA' : '—';
+    XK.ig1.textContent = tx ? (r.Ig1 * 1e3).toFixed(1) + ' mA' : '—';
+    XK.eff.textContent = tx ? (r.eff * 100).toFixed(0) + ' %' : '—';
+    XK.zl.textContent = cstr(r.ZL);
+    XK.swr.textContent = r.swr > 50 ? '> 50 : 1' : r.swr.toFixed(2) + ' : 1';
+    if (mode === 'sprint') XK.opt.textContent = 'hidden in the sprint';
+    else { const bd = M.bestDials(sim.pos, sim.freq * 1e3, r.ZL); XK.opt.textContent = bd && bd.tune >= -5 && bd.tune <= 105 && bd.load >= -5 && bd.load <= 105 ? `TUNE ${bd.tune.toFixed(1)}, LOAD ${bd.load.toFixed(1)}` : 'no match on this band position'; }
+  }
+
+  // ---------- parameters ----------
+  (() => {
+    const tb = $('ptable').querySelector('tbody');
+    const fmt = (p) => p.unit === 'F' ? (p.v * 1e12).toFixed(0) + ' pF' : p.unit === 'A' ? (p.v * 1e3).toFixed(0) + ' mA' : `${p.v}${p.unit ? ' ' + p.unit : ''}`;
+    const row = (name, val, src, note) => { const tr = document.createElement('tr'); tr.innerHTML = `<td>${name}</td><td class="num">${val}</td><td><span class="src ${src}">${src}</span></td><td></td>`; tr.lastChild.textContent = note; tb.appendChild(tr); };
+    for (const [k, p] of Object.entries(M.P)) row(k, fmt(p), p.src, p.note);
+    for (const p of M.POSITIONS) row(`BAND ${p.label}`, `Lp ${(p.Lp * 1e6).toFixed(2)} µH, LL ${(p.LL * 1e6).toFixed(2)} µH`, 'placeholder', `Inductances from a textbook Pi-L design at ${(p.fd / 1e6).toFixed(2)} MHz; dial laws fitted to Table 4-1.`);
+    for (const L of Object.values(M.LOADS)) row(L.name, '', L.src, L.note || 'Exact by construction.');
+  })();
+
+  // ---------- sprint ----------
+  const SPRINT_BANDS = ['80', '40', '20', '15', '10'];
+  const ANT_FOR = { '80': 2, '40': 2, '20': 1, '15': 1, '10': 1 };
+  const center = (b) => Math.round((b.lo + b.hi) / 2 / 5) * 5;
+  function bestTimes() { return store.get('acom1010-sprint-best', {}); }
+  function renderBest() {
+    const bt = bestTimes(), dl = $('bestList'); dl.innerHTML = '';
+    const ks = Object.keys(bt).sort();
+    if (!ks.length) { const dd = document.createElement('dd'); dd.className = 'empty'; dd.style.textAlign = 'left'; dd.textContent = 'No finished runs yet.'; dl.appendChild(dd); return; }
+    for (const k of ks) { const dt = document.createElement('dt'); dt.textContent = k.replace('>', ' m → ') + ' m'; const dd = document.createElement('dd'); dd.textContent = bt[k].toFixed(1) + ' s'; dl.append(dt, dd); }
+  }
+  function startSprint() {
+    const from = SPRINT_BANDS[Math.floor(Math.random() * SPRINT_BANDS.length)];
+    let to; do { to = SPRINT_BANDS[Math.floor(Math.random() * SPRINT_BANDS.length)]; } while (to === from);
+    const bf = M.BANDS.find((b) => b.id === from), bt = M.BANDS.find((b) => b.id === to);
+    sim.reset(); sim.loads = Object.assign({}, M.LOADS, Object.fromEntries(Object.entries(sim.loads).filter(([k]) => k.startsWith('file:'))));
+    sim.conn = { 1: 'yagi', 2: 'dipole' }; fillConn();
+    sim.setPower(true); sim.powerT = M.V('warmup') + 2; sim.warm = true;
+    sim.freq = center(bf); sim.pos = bf.pos; sim.ant = ANT_FOR[from];
+    const bd = M.bestDials(sim.pos, sim.freq * 1e3, sim.ZL()); sim.tune = clampDial(bd.tune); sim.load = clampDial(bd.load);
+    sim.drive = 0; $('drive').value = 0; sim.latch = false; $('latch').checked = false; sim.keyHeld = false;
+    events.length = 0; renderLog();
+    Object.assign(sprint, { running: true, t0: performance.now(), target: { from, to, kHz: center(bt), band: bt }, held: 0, done: false, dq: null });
+    $('sprintTarget').innerHTML = `You are tuned on <strong>${from} m</strong>. Move to <strong>${to} m (${(center(bt) / 1000).toFixed(3)} MHz)</strong> and tune to 550 W forward or more.`;
+    $('sprintVerdict').textContent = 'Running'; $('sprintVerdict').className = 'verdict';
+    $('sprintStart').textContent = 'Restart';
+  }
+  function endSprint(okRun, why) {
+    if (!sprint.running) return;
+    sprint.running = false; sprint.done = okRun;
+    const t = (performance.now() - sprint.t0) / 1000;
+    $('sprintTime').textContent = t.toFixed(1) + ' s';
+    const v = $('sprintVerdict');
+    if (okRun) {
+      const key = `${sprint.target.from}>${sprint.target.to}`, bt = bestTimes(), prev = bt[key];
+      if (!prev || t < prev) { bt[key] = t; store.set('acom1010-sprint-best', bt); }
+      v.textContent = `Finished in ${t.toFixed(1)} s${!prev || t < prev ? ', a personal best' : ''}.`; v.className = 'verdict ok';
+      renderBest();
+    } else { v.textContent = 'Disqualified: ' + why; v.className = 'verdict bad'; }
+  }
+  function sprintTick(dt) {
+    if (!sprint.running) return;
+    $('sprintTime').textContent = ((performance.now() - sprint.t0) / 1000).toFixed(1) + ' s';
+    const r = sim.r, b = M.bandOf(sim.freq);
+    const good = b && b.id === sprint.target.to && sim.operating && sim.keyed && sim.drive > 0 && r.Pfwd >= 550 && r.tri === 'C' && Math.abs(r.tdet) < 0.15 && sim.ant === ANT_FOR[sprint.target.to];
+    sprint.held = good ? sprint.held + dt : 0;
+    if (sprint.held >= 1) endSprint(true);
+  }
+  $('sprintStart').onclick = startSprint;
+  $('skipBtn').onclick = () => sim.skipWarmup();
+  function setMode(m) {
+    mode = m;
+    $('tabPractice').setAttribute('aria-selected', m === 'practice'); $('tabSprint').setAttribute('aria-selected', m === 'sprint');
+    $('sprintCard').hidden = m !== 'sprint';
+    if (m === 'practice' && sprint.running) { sprint.running = false; $('sprintVerdict').textContent = 'Stopped.'; }
+    renderBest();
+  }
+  $('tabPractice').onclick = () => setMode('practice'); $('tabSprint').onclick = () => setMode('sprint');
+
+  // ---------- render ----------
+  const setLed = (el, on, flash) => { el.classList.toggle('on', !!on); el.classList.toggle('flash', !!flash); };
+  function render() {
+    const r = sim.r, tx = sim.keyed && sim.drive > 0, test = sim.selfTest, op = sim.operating;
+    updTune(); updLoad(); updBand();
+    $('tuneOut').textContent = sim.tune.toFixed(1); $('loadOut').textContent = sim.load.toFixed(1);
+    const showFwd = op && tx ? r.Pfwd : 0, showRfl = op && tx ? r.Prfl : 0;
+    const tripRfl = sim.tripped && sim.tripReason === 'RFL';
+    fwd.forEach((l, i) => setLed(l, test || (sim.power && showFwd >= 50 * (i + 1))));
+    rfl.forEach((l, i) => setLed(l, test || (sim.power && (showRfl >= 30 * (i + 1) || (tripRfl && i === 7))), tripRfl && i === 7));
+    const w = sim.warnings();
+    setLed(warn.g1, test || w.g1); setLed(warn.g2, test || w.g2); setLed(warn.ip, test || w.ip); setLed(warn.f, test || sim.tripped, sim.tripped);
+    const triTrip = sim.tripped && sim.tripReason === 'TRI', t = op && tx ? r.tri : 'off';
+    setLed($('triL'), test || triTrip || t === 'L' || t === 'LC', triTrip);
+    setLed($('triC'), test || triTrip || t === 'LC' || t === 'C' || t === 'CR', triTrip);
+    setLed($('triR'), test || triTrip || t === 'R' || t === 'CR', triTrip);
+    setLed($('ledOn'), sim.power);
+    setLed($('ledOper'), test || (sim.power && (!sim.warm || op)), sim.power && !sim.warm && !test);
+    setLed($('ledRtty'), test || (sim.power && sim.rtty));
+    setLed($('ledA1'), test || (sim.power && sim.ant === 1)); setLed($('ledA2'), test || (sim.power && sim.ant === 2));
+    setLed($('ledTx'), test || (sim.power && sim.keyed));
+    $('readline').textContent = sim.power ? `FWD ${showFwd.toFixed(0)} W · RFL ${showRfl.toFixed(0)} W` : '';
+
+    // status line under the panel
+    const st = !sim.power ? 'OFF (bypass to ANT1)' : test ? 'SELF-TEST' : !sim.warm ? `WARM-UP ${Math.ceil(sim.warmLeft)} s (STANDBY)` : sim.tripped ? `TRIPPED: STANDBY ${Math.ceil(sim.tripUntil - sim.t)} s` : op ? 'OPERATE' : 'STANDBY';
+    $('skipBtn').style.visibility = sim.power && !sim.warm && !test && mode === 'practice' ? 'visible' : 'hidden';
+    const sl = $('statusline');
+    const html = `<span>State <b>${st}</b></span><span>BAND <b>${M.POSITIONS[sim.pos].label}</b></span><span>ANT <b>A${sim.ant}</b></span>${r.bypass && tx ? `<span>Bypass: <b>${sim.drive} W</b> straight to ANT${r.bypassAnt}</span>` : ''}`;
+    if (sl.dataset.h !== html) { sl.innerHTML = html; sl.dataset.h = html; }
+
+    // transceiver
+    const b = M.bandOf(sim.freq);
+    M.BANDS.forEach((x) => x.btn.setAttribute('aria-pressed', b && b.id === x.id));
+    $('freqShow').innerHTML = `${(sim.freq / 1000).toFixed(3)} <small>MHz${b ? ' · ' + b.id + ' m' : ' · out of band'}</small>`;
+    if (document.activeElement !== $('freqIn')) $('freqIn').value = sim.freq;
+    $('driveOut').textContent = sim.drive + ' W';
+    keyBtn.classList.toggle('on', sim.keyed); keyBtn.setAttribute('aria-pressed', sim.keyed);
+    const kd = sim.keyDur;
+    keyBtn.textContent = sim.keyed ? `${sim.drive > 0 ? `TX ${sim.drive} W` : 'KEYED, NO DRIVE'} · ${fmtT(kd)}${kd > 45 ? ' · UNKEY' : ''}` : 'HOLD TO TRANSMIT';
+    keyBtn.style.borderColor = keyBtn.style.background = kd > 45 && sim.keyed ? 'var(--warn)' : '';
+    if (+$('drive').value !== sim.drive && document.activeElement !== $('drive')) $('drive').value = sim.drive;
+    $('latch').checked = sim.latch;
+    $('xBandSel').value = b ? b.id : '';
+
+    stepState();
+    if ($('xray').open) renderXray(r, op && tx);
+  }
+
+  // ---------- loop ----------
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    sim.tick(dt); sprintTick(dt); render();
+    requestAnimationFrame(frame);
+  }
+  // Open in a working state: on 20 m, presets set, power off, so the first action is the manual's first step.
+  sim.freq = 14175; sim.pos = 4; { const p = M.preset(14175); sim.tune = p.tune; sim.load = p.load; }
+  renderBest(); render();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
