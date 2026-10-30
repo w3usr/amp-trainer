@@ -67,3 +67,6 @@ _site/
 # Claude Code local state
 .claude/settings.local.json
 CLAUDE.local.md
+
+# Build output
+dist/

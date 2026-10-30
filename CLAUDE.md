@@ -11,7 +11,9 @@ behavior into the station's actual antennas. It teaches students to tune it and 
 safely, and explains the tube and output-network theory behind each knob as they turn it. It
 tests students before their supervised check-out on the real amplifier and runs timed band-change
 challenges in which only a safe, correct run counts. It is the companion to the club's ACOM 1010
-briefing (`w3usr_antennas/docs/presentations/acom1010_talk/`).
+briefing (in the private `w3usr_antennas` repository, `docs/presentations/acom1010_talk/`).
+
+**Live site**: https://w3usr.github.io/amp-trainer/ (GitHub Pages, built from `main`)
 
 **Project type**: Software build (web application)
 **Project lead**: Nathaniel A. Frissell, W2NAF
@@ -31,10 +33,19 @@ The requirements are in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).
 
 ## Repository Visibility
 
-**This repository is: PRIVATE**, decided by Nathaniel A. Frissell, W2NAF, on 2026-10-30.
-**Reason**: It draws on the ACOM 1010 manual and other third-party documents carried by the
-private `w3usr_antennas` submodule, and the design is not yet settled. Revisit before any public
-release. The simulator code itself contains nothing that requires privacy.
+**This repository is: PUBLIC**, decided by Nathaniel A. Frissell, W2NAF, on 2026-10-30
+(it was private from creation earlier that day until then).
+**Reason**: The trainer is meant to be shared, with students on their own phones and with other
+clubs, and it is served free from GitHub Pages. Code is MIT-licensed and documentation CC BY 4.0
+(`LICENSE`, `LICENSE-docs.md`, `NOTICE`).
+
+**What stays out of this repository.** Anything the club has no right to redistribute: the
+ACOM 1010 manual, tube datasheets, vendor or partner documents and correspondence. Those live
+in the private `w3usr_antennas` repository, which this one does not include as a submodule,
+because a public repository cannot usefully point at a private one. Cite them by section
+instead; short quotations and the handful of manual values the model needs (such as Table 4-1)
+are fine, credited in `NOTICE`. The club's own measurements, such as antenna sweeps, may be
+committed here.
 
 This template sets no default. Decide deliberately at instantiation and record the decision
 above, because the answer changes what may be committed.
@@ -85,12 +96,19 @@ is fine. Aggregating a member's callsign with their address, schedule, or dorm i
 Instantiated from the W3USR `ai_project_template` scaffold. Current layout:
 
 ```
-w3usr_amp_trainer/
+amp-trainer/
 |-- CLAUDE.md
 |-- README.md
-|-- NOTICE                        <- copyright; no LICENSE yet (all rights reserved)
+|-- LICENSE                       <- MIT, for the software
+|-- LICENSE-docs.md               <- CC BY 4.0, for the documentation
+|-- NOTICE                        <- copyright and what neither license covers
 |-- .gitignore
-|-- .gitmodules
+|-- .github/workflows/pages.yml   <- tests the model, builds the page, publishes to Pages from main
+|-- app/page.html                 <- the trainer's page; the model is inlined at /*MODEL*/
+|-- model/
+|   |-- model.js                  <- physics model and simulator state; every value sourced
+|   `-- test.js                   <- acceptance cases from docs/REQUIREMENTS.md §6
+|-- scripts/build.mjs             <- builds dist/index.html (gitignored)
 |-- .claude/
 |   |-- settings.json             <- registers the session-start template check
 |   |-- template.json             <- which template commit was last adopted
@@ -107,11 +125,11 @@ w3usr_amp_trainer/
 |   |-- ONBOARDING.md             <- read this first
 |   |-- REQUIREMENTS.md           <- what the trainer must do; start here
 |   `-- ai_policy_agreement/      <- sign before using AI tools
-`-- w3usr_antennas/               <- submodule: antenna system, ACOM 1010 manual, tube datasheets
 ```
 
-The application source tree (`app/`, `model/`, calibration data) is added when the
-technology decisions in `docs/REQUIREMENTS.md` are made.
+The prototype is plain JavaScript in one page, with no dependencies, so it builds with Node alone.
+`docs/REQUIREMENTS.md` §9 proposes TypeScript and Vite for later phases. Calibration data and
+antenna sweeps go under `data/` when they exist.
 ```
 
 ## Curated Documents

@@ -2,7 +2,8 @@
 
 A project of the University of Scranton Amateur Radio Club (W3USR).
 
-This log records every substantive AI-assisted session for the W3USR Amplifier Trainer (`w3usr_amp_trainer`).
+This log records every substantive AI-assisted session for the W3USR Amplifier Trainer
+(`w3usr/amp-trainer`, named `w3usr_amp_trainer` until 2026-10-30).
 
 Required by the University of Scranton AI Policy, the HamSCI Generative AI Use Agreement,
 NASA and NSF guidance on generative AI in funded research, and the expectations of any future funder.
@@ -49,3 +50,20 @@ carries the actual running model ID.
   hosting options draw on w3usr.org-PRIVATE/deploy/README.md and ARCOps docs/REQUIREMENTS.md.
 - **Human Review Status**: Pending review
 - **Git Hash**: 4841053 (PR w3usr/w3usr_amp_trainer#1)
+
+## [2026-10-30 22:50 UTC]
+- **Tool**: Claude (Anthropic), claude-opus-5-5
+- **Session Purpose**: Prepare the trainer for public release on GitHub Pages: rename the repository
+  to amp-trainer, drop the private w3usr_antennas submodule, license the work (MIT software,
+  CC BY 4.0 documentation), and commit the working prototype with a test-and-publish workflow.
+- **Sections/Files Affected**: LICENSE, LICENSE-docs.md, NOTICE (new licensing and exceptions);
+  CLAUDE.md (visibility PUBLIC, what stays out, layout); README.md; docs/REQUIREMENTS.md (sources,
+  FR-21, data inventory, §10 decision, §11); .claude/rules/simulator-fidelity.md; .gitignore;
+  ai/ai_usage_log.md header; .gitmodules and w3usr_antennas removed; new app/page.html,
+  model/model.js, model/test.js, scripts/build.mjs, .github/workflows/pages.yml. Repository
+  renamed on GitHub from w3usr_amp_trainer to amp-trainer.
+- **Nature of Contribution**: Code generation (simulator model, UI, tests, build, CI workflow);
+  edit (licensing, visibility and requirements documents)
+- **Human Review Status**: Pending review (the visibility, URL and license decisions are
+  W2NAF's; the prototype was exercised by W2NAF on a phone in published versions 1 to 7)
+- **Git Hash**: e25d427 (PR w3usr/amp-trainer#2)
