@@ -93,3 +93,15 @@ carries the actual running model ID.
   trainer's model and labeled as placeholders; chart colors run through the dataviz palette validator.
 - **Human Review Status**: Pending review
 - **Git Hash**: 1d3009e (PR w3usr/amp-trainer#4)
+
+## [2026-10-31 02:00 UTC]
+- **Tool**: Claude (Anthropic), claude-opus-5-5
+- **Session Purpose**: Add a note to the Smith chart tutorial clarifying |Γ| (voltage ratio, chart
+  distance, SWR) versus |Γ|² (reflected power fraction), at the project lead's request.
+- **Sections/Files Affected**: app/smith-chart.html (new "|Γ| or |Γ|²?" callout in §3 with an
+  SWR / |Γ| / |Γ|² / RFL / return-loss table; readout label "Power reflected |Γ|²");
+  app/faults.html (§4 text and Figure 1 caption name |Γ|² and link to the new note).
+- **Nature of Contribution**: Draft (tutorial text). Table values computed from
+  SWR = (1+|Γ|)/(1−|Γ|) and checked against the manual's 2.5:1 example (§4.5a).
+- **Human Review Status**: Pending review
+- **Git Hash**: [filled in after committing]
