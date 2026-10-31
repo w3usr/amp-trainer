@@ -122,11 +122,11 @@
   </section>
 
   <h2 id="swr">4. How SWR limits your power</h2>
-  <p>The reflected fraction depends only on the SWR (see the <a href="smith-chart.html#reading">Smith chart tutorial</a>). Since reflected power must stay under 250 W, the SWR sets the most forward power you can run. The manual's examples: at 2.5:1, 800 W forward comes with 150 W reflected; at 5:1, the most forward power you can get is about 540 W, with 240 W reflected and only 300 W reaching the antenna system (Manual §4.5a).</p>
+  <p>The reflected fraction is |Γ|², the square of the reflection coefficient, and depends only on the SWR (see the <a href="smith-chart.html#gamma-squared">Smith chart tutorial</a> on |Γ| versus |Γ|²). Since reflected power must stay under 250 W, the SWR sets the most forward power you can run. The manual's examples: at 2.5:1, 800 W forward comes with 150 W reflected; at 5:1, the most forward power you can get is about 540 W, with 240 W reflected and only 300 W reaching the antenna system (Manual §4.5a).</p>
   <figure>
     <h3>Figure 1. Most forward power before reflected power reaches 250 W</h3>
     <svg class="plot" id="swrPlot" role="img" aria-label="Maximum forward power falling as SWR rises: unlimited at low SWR, about 1000 watts at 3 to 1 and about 560 watts at 5 to 1"></svg>
-    <figcaption>Forward power at which reflected power reaches 250 W, by SWR: 250 W divided by the reflected fraction. The dashed line is the amplifier's rated 700 W PEP (Manual §1.1). Below about 4:1 the reflected-power limit is above rated power and the limit does not bite. The manual guarantees a match only up to 3:1; past that, matching may still be possible, but only at reduced drive (Manual §4.5a). Hover or touch for values.</figcaption>
+    <figcaption>Forward power at which reflected power reaches 250 W, by SWR: 250 W divided by the reflected fraction |Γ|² (not |Γ|). The dashed line is the amplifier's rated 700 W PEP (Manual §1.1). Below about 4:1 the reflected-power limit is above rated power and the limit does not bite. The manual guarantees a match only up to 3:1; past that, matching may still be possible, but only at reduced drive (Manual §4.5a). Hover or touch for values.</figcaption>
   </figure>
 
   <h2 id="mistakes">5. Operator mistakes the trips do not cover</h2>

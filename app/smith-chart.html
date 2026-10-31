@@ -65,6 +65,26 @@
     <li><strong>Distance from the center is mismatch.</strong> Loads at the same distance reflect the same fraction of the power, whatever their direction. That distance sets the <strong>SWR</strong> (standing-wave ratio) you read on a meter, and the reflected fraction is |Γ|².</li>
   </ul>
   <p>The ACOM's two LED bars measure exactly this at its output: FWD is the power sent toward the antenna and RFL the power coming back. The manual's own example: at SWR 2.5:1, 800 W forward comes with 150 W reflected, so 650 W actually reaches the antenna system (Manual §4.5a). Try the 125 Ω button in Figure 1: |Γ|² is 18.4%, and 18.4% of 800 W is about 150 W.</p>
+  <div class="callout" id="gamma-squared">
+    <p><strong>|Γ| or |Γ|²? Voltage or power.</strong> The two are easy to mix up, so here is the rule. Γ compares <em>voltages</em>: the reflected wave's voltage is |Γ| times the forward wave's. Power goes as voltage squared, so the reflected <em>power</em> is |Γ|² times the forward power. If the question is about watts, square it.</p>
+    <ul>
+      <li><strong>|Γ|</strong> (no square) is the distance from the center of the chart, and the SWR comes from it: <span class="mono" style="white-space:nowrap">SWR = (1 + |Γ|) / (1 − |Γ|)</span>.</li>
+      <li><strong>|Γ|²</strong> is the fraction of the forward power that comes back, which is what the RFL bar shows against FWD. The antenna system gets the rest, 1 − |Γ|².</li>
+      <li>The trap: at 3:1, |Γ| = 0.5, but that does not mean half the power reflects. Only 0.5² = 25% does. In the same way, the amber 3:1 circle reaches halfway to the rim, yet the loads inside it reflect at most a quarter of the power.</li>
+      <li>In decibels the difference disappears. Return loss is <span style="white-space:nowrap">−20 log|Γ|</span> or <span style="white-space:nowrap">−10 log|Γ|²</span>, the same number, because squaring doubles a logarithm.</li>
+    </ul>
+    <div class="tablewrap"><table>
+      <thead><tr><th>SWR</th><th>|Γ|<br>voltage</th><th>|Γ|²<br>power</th><th>RFL at<br>800&nbsp;W FWD</th><th>Return<br>loss</th></tr></thead>
+      <tbody>
+        <tr><td>1.5:1</td><td>0.20</td><td>4%</td><td>32&nbsp;W</td><td>14.0&nbsp;dB</td></tr>
+        <tr><td>2:1</td><td>0.33</td><td>11%</td><td>89&nbsp;W</td><td>9.5&nbsp;dB</td></tr>
+        <tr><td>2.5:1</td><td>0.43</td><td>18%</td><td>147&nbsp;W</td><td>7.4&nbsp;dB</td></tr>
+        <tr><td>3:1</td><td>0.50</td><td>25%</td><td>200&nbsp;W</td><td>6.0&nbsp;dB</td></tr>
+        <tr><td>5:1</td><td>0.67</td><td>44%</td><td>356&nbsp;W</td><td>3.5&nbsp;dB</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Computed from the formulas above. The 2.5:1 row agrees with the manual's 800 W / 150 W example to within rounding (Manual §4.5a). At 5:1 the 250 W reflected-power limit stops you well short of 800 W forward; see the <a href="faults.html#swr">faults tutorial</a>.</p>
+  </div>
   <div class="callout">
     <p><strong>The amplifier's knobs cannot change the SWR.</strong> The fraction that reflects is set by the antenna and the coax. Turning TUNE and LOAD does not move the dot in Figure 1. The trainer behaves the same way: load an SWR test load and watch RFL stay the same fraction of FWD as you tune. What the knobs <em>can</em> do is make the tube see the load it wants, whatever is on the coax, within limits. The amplifier is safe while reflected power stays below 250 W (Manual §4.5a). To lower the SWR itself, fix the antenna or add an antenna tuner.</p>
   </div>
@@ -144,7 +164,7 @@
       ['Compared with 50 Ω', `${num(ZA.re / Z0, 2)} ${ZA.im < 0 ? '−' : '+'} j${num(Math.abs(ZA.im) / Z0, 2)}`],
       ['Reflection |Γ|', num(m, 3)],
       ['SWR', swr > 99 ? 'over 99 : 1' : num(swr, 2) + ' : 1'],
-      ['Power reflected', num(refl * 100, 1) + ' %'],
+      ['Power reflected |Γ|²', num(refl * 100, 1) + ' %'],
       ['At 800 W forward', `RFL ${num(800 * refl)} W, delivered ${num(800 * (1 - refl))} W`],
     ];
     kvA.innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') +
