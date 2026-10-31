@@ -104,11 +104,16 @@ amp-trainer/
 |-- NOTICE                        <- copyright and what neither license covers
 |-- .gitignore
 |-- .github/workflows/pages.yml   <- tests the model, builds the page, publishes to Pages from main
-|-- app/page.html                 <- the trainer's page; the model is inlined at /*MODEL*/
+|-- app/
+|   |-- page.html                 <- the trainer's page; the model is inlined at /*MODEL*/
+|   |-- smith-chart.html          <- tutorial: the Smith chart, from scratch
+|   |-- pi-network.html           <- tutorial: the Pi-L output network, from scratch
+|   |-- faults.html               <- tutorial: every warning, trip and operator mistake
+|   `-- tutorial.css, tutorial.js <- shared by the tutorials, which load model.js
 |-- model/
 |   |-- model.js                  <- physics model and simulator state; every value sourced
 |   `-- test.js                   <- acceptance cases from docs/REQUIREMENTS.md §6
-|-- scripts/build.mjs             <- builds dist/index.html (gitignored)
+|-- scripts/build.mjs             <- builds the site into dist/ (gitignored)
 |-- .claude/
 |   |-- settings.json             <- registers the session-start template check
 |   |-- template.json             <- which template commit was last adopted

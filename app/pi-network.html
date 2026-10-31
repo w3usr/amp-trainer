@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="What the ACOM 1010's Pi-L output network does, from scratch: why the tube needs it, how coils and capacitors transform impedance, and what TUNE, LOAD and BAND change.">
+<title>The Pi Network · ACOM 1010 Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=Saira+Semi+Condensed:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="tutorial.css">
+</head>
+<body>
+<main>
+  <a class="back" href="./">← Back to the ACOM 1010 Trainer</a>
+  <header style="display:grid;gap:10px">
+    <p class="eyebrow">ACOM 1010 Trainer · Tutorial</p>
+    <h1>The Pi network</h1>
+    <p class="lede">Between the tube and the antenna connector, the ACOM 1010 has a <strong>Pi-L network</strong>: <span class="ind">coils</span> and <span class="cap">capacitors</span> whose values you set with three knobs. TUNE and LOAD are its two variable capacitors; BAND switches its coils. This page explains what the network does and why each knob does what it does, assuming you have never met one.</p>
+    <nav class="toc" aria-label="On this page">
+      <a href="#problem">1. The problem</a><a href="#parts">2. The parts</a><a href="#lnet">3. One step: the L</a><a href="#pi">4. The Pi and the Pi-L</a><a href="#follow">5. Follow the impedance</a><a href="#knobs">6. The knobs</a><a href="#harmonics">7. Harmonics</a>
+    </nav>
+  </header>
+
+  <h2 id="problem">1. The problem: the tube and the antenna want different things</h2>
+  <p>The amplifier's 4CX800A tube makes power as a <strong>large voltage swing at a modest current</strong>: a swing of well over a thousand volts on its plate. The load that suits it best, the <strong>optimum plate load</strong>, is roughly the square of that swing divided by twice the power. In the trainer's model that comes to about <strong>2,300 Ω</strong>. That is an estimate: ACOM does not publish the 1010's plate voltage, and the club will measure it.</p>
+  <p class="eq">R_opt ≈ (peak plate swing)² / (2 × power) ≈ (1,850 V)² / (2 × 750 W) ≈ 2,300 Ω</p>
+  <p>The coax and the antenna are about <strong>50 Ω</strong>: low voltage, high current. Connect the antenna straight to the plate and the tube would be loaded nearly fifty times too heavily. It would run out of current long before it built up its voltage swing, and would deliver only a small part of its power.</p>
+  <p>What is needed is the electrical version of a gearbox: something that trades voltage for current without wasting power. At low frequencies a transformer does that. In an HF amplifier that must work from 1.8 to 29.7 MHz and adjust to different antennas, the job falls to a network of coils and capacitors you can tune.</p>
+
+  <h2 id="parts">2. The parts: coils and capacitors</h2>
+  <p>Both parts store energy instead of burning it, so they can reshape an impedance with very little loss. Each has a <strong>reactance</strong> (see the <a href="smith-chart.html#impedance">Smith chart tutorial</a>), and it depends on frequency in opposite ways:</p>
+  <p class="eq">Coil: X_L = 2π f L  (rises with frequency)<br>Capacitor: X_C = 1 / (2π f C)  (falls with frequency)</p>
+  <figure>
+    <h3>Figure 1. The same two parts across the HF bands</h3>
+    <div class="legend"><span style="--c:var(--ind)">Coil, 2.89 µH</span><span style="--c:var(--cap)">Capacitor, 58 pF</span></div>
+    <svg class="plot" id="reactPlot" role="img" aria-label="Reactance of a 2.89 microhenry coil rising and a 58 picofarad capacitor falling between 1.8 and 30 megahertz"></svg>
+    <figcaption>Reactance against frequency, both axes logarithmic. The parts are the trainer's 20 m plate coil (Lp) and its TUNE capacitance near the 20 m preset, including the tube's own 11 pF. The dashed line is 14.175 MHz. Hover or touch for values. A part that is right on 20 m is far off on 80 m, which is why the BAND switch changes coils and every band has its own presets (Manual Table 4-1).</figcaption>
+  </figure>
+
+  <h2 id="lnet">3. One step up: the L network</h2>
+  <p>The simplest matching network has two parts in the shape of an L: one in <strong>series</strong> with the low-resistance side and one in <strong>parallel</strong> across the high-resistance side. One part of the pair is a coil and the other a capacitor, so their reactances work against each other. Together they make the low resistance look like a higher one, with nothing left over.</p>
+  <p>How far it steps up depends on <strong>Q</strong>, the ratio of the series part's reactance to the low resistance:</p>
+  <p class="eq">R_high = R_low × (1 + Q²)<br>Q = X_series / R_low</p>
+  <p>For example, to make the antenna's 50 Ω look like 300 Ω takes Q = √(300/50 − 1) ≈ 2.2: a series coil of about 112 Ω reactance, with a parallel capacitor that cancels what is left over.</p>
+  <figure>
+    <h3>Figure 2. An L network stepping 50 Ω up to 300 Ω</h3>
+    <svg class="sch" viewBox="0 0 520 170" role="img" aria-label="Schematic: from the 300 ohm side, a capacitor to ground, then a series coil to a 50 ohm load">
+      <text class="t" x="10" y="30">looks like</text><text class="t" x="10" y="48">300 Ω</text>
+      <path class="w" d="M90 70 H170"/><circle cx="90" cy="70" r="4" fill="currentColor" style="color:var(--ink)"/>
+      <path class="w" d="M170 70 V92"/><path class="cap" d="M152 92 H188 M152 102 H188"/><path class="w" d="M170 102 V140"/>
+      <text class="t tc" x="196" y="104">C (parallel)</text>
+      <path class="w" d="M170 70 H250"/><path class="ind" d="M250 70 q10 -16 20 0 q10 -16 20 0 q10 -16 20 0 q10 -16 20 0"/><path class="w" d="M330 70 H420"/>
+      <text class="t tn" x="252" y="40">L (series)</text>
+      <path class="w" d="M420 70 V90"/><rect x="408" y="90" width="24" height="40" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink)"/><path class="w" d="M420 130 V140"/>
+      <text class="t" x="442" y="106">50 Ω</text><text class="v" x="442" y="124">antenna</text>
+      <path class="w" d="M60 140 H460"/>
+    </svg>
+    <figcaption>Read it from the right: the 50 Ω antenna, a <span class="ind">coil</span> in series, then a <span class="cap">capacitor</span> in parallel. Seen from the left, the whole thing looks like a 300 Ω resistor at one frequency.</figcaption>
+  </figure>
+  <p>A single L has one weakness: the resistance ratio fixes Q, so the designer gets no say in it, and Q matters. A higher Q filters out harmonics better but stores more energy in the parts, heats them more, and makes the tuning sharper.</p>
+
+  <h2 id="pi">4. The Pi, and the ACOM's Pi-L</h2>
+  <p>A <strong>Pi network</strong> is two L networks back to back. A <span class="cap">capacitor</span> to ground at the tube's side, a <span class="ind">coil</span> in the middle, and a <span class="cap">capacitor</span> to ground at the far side: drawn out, it looks like the Greek letter π. The first half steps the high plate resistance <em>down</em> to a low "virtual" resistance in the middle of the coil. The second half steps it back <em>up</em> to the output. Choosing how low to go in the middle lets the designer pick the Q.</p>
+  <p>The ACOM 1010 adds one more coil after the Pi, making it a <strong>Pi-L</strong>. The extra L section first raises the antenna's 50 Ω to a middle value, so the Pi has a smaller ratio to cover and the whole network filters harmonics better. The manual describes it in one line (Manual §5.5): "The output tank, comprised of LP1, LP2, LL, CP1-CP3, and CL1-CL4, forms a classic Pi-L network and suppresses harmonic frequency emissions."</p>
+  <ul>
+    <li><span class="cap">TUNE</span> is the capacitor at the tube's side (CP). The tube's own output capacitance, about 11 pF, sits in parallel with it.</li>
+    <li><span class="ind">Lp</span> is the Pi's coil (LP1 and LP2 in the real amplifier). The BAND switch selects how much of it is used.</li>
+    <li><span class="cap">LOAD</span> is the capacitor at the output side (CL). It is shared: the last part of the Pi and the first part of the L.</li>
+    <li><span class="ind">LL</span> is the L section's coil, in series toward the antenna connector.</li>
+  </ul>
+  <div class="callout warn"><p>ACOM publishes the circuit but not the component values. The trainer's values come from a textbook design (a loaded Q of 12, a middle resistance of 300 Ω) with the dial scales fitted to Table 4-1. They are placeholders until the club calibrates the model against the real amplifier, so treat the numbers below as illustrative.</p></div>
+
+  <h2 id="follow">5. Follow the impedance through the network</h2>
+  <p>Start at the antenna and walk back toward the tube, one part at a time, the way the tube sees it. A Smith chart (see the <a href="smith-chart.html">Smith chart tutorial</a>) shows each step as a move along one of its circles:</p>
+  <ul>
+    <li>A part <strong>in series</strong> adds reactance only, so the dot moves along a <strong>constant-resistance circle</strong>.</li>
+    <li>A part <strong>in parallel</strong> adds susceptance only, so the dot moves along a <strong>constant-conductance circle</strong>.</li>
+  </ul>
+  <figure>
+    <h3>Figure 3. From 50 Ω at the antenna to the tube's plate</h3>
+    <svg class="sch" id="sch" viewBox="0 0 560 196" role="img" aria-label="Pi-L schematic with the impedance at each point"></svg>
+    <div class="figgrid">
+      <svg class="smith" id="smithW" viewBox="-1.14 -1.14 2.28 2.28" role="img" aria-label="Smith chart showing the impedance path through the network"></svg>
+      <div class="controls">
+        <div class="row"><label for="band" class="note" style="font-weight:700">Band</label><select id="band"></select><span class="note mono" id="bandSw"></span></div>
+        <div class="ctl"><label for="tune">TUNE</label><input type="range" id="tune" min="0" max="100" step="0.1"><output id="tuneOut"></output></div>
+        <div class="ctl"><label for="load">LOAD</label><input type="range" id="load" min="0" max="100" step="0.1"><output id="loadOut"></output></div>
+        <div class="row"><button class="btn" id="toPreset">Table 4-1 preset</button><button class="btn" id="toBest">Model optimum</button></div>
+        <div class="row" style="justify-content:space-between"><span class="note" style="font-weight:700">TRI</span><span class="tri" id="tri" aria-hidden="true"><span class="a"></span><span></span><span class="a"></span></span></div>
+        <div class="tablewrap"><table><thead><tr><th>Point</th><th>Impedance</th><th>Parallel R</th></tr></thead><tbody id="nodes"></tbody></table></div>
+      </div>
+    </div>
+    <figcaption>The path on the Smith chart: <span class="ind">blue</span> moves are coils, <span class="cap">orange</span> moves are capacitors. The chart's reference is 340 Ω, chosen so both ends fit comfortably; its center is not a target here. "Parallel R" is the resistance as a part connected in parallel there would see it. Points 1 and 2 are the same spot in the circuit, the LOAD capacitor's node, looked at before and after LOAD is added; points 3 and P are likewise the plate's node before and after TUNE. Tuned, the parallel R climbs from the antenna's 50 Ω to about 300 Ω at the LOAD node, then to the tube's 2,300 Ω at the plate. Inside the Pi, the series resistance in the "Impedance" column drops to about 16 Ω: the low virtual resistance of section 4. Model values, 50 Ω dummy load, 15 W drive.</figcaption>
+  </figure>
+
+  <h2 id="knobs">6. What each knob does</h2>
+  <ul>
+    <li><strong>BAND</strong> selects the coil taps (switch S1 in the manual's schematic, Manual §5.5). Each band needs very different reactances, as Figure 1 shows. Never turn it while transmitting: hot switching will eventually destroy the band switch (Manual §3.2h).</li>
+    <li><strong>LOAD</strong> sets how far the network steps up the antenna's resistance, and so the resistance the tube sees. That is what the TRI reads. Turned right, the plate-load resistance goes down; turned left, it goes up (Manual §4.5c, Fig. 4-1). Try it in Figure 3: the last row's parallel R follows LOAD.</li>
+    <li><strong>TUNE</strong> sits right at the plate and cancels whatever reactance is left over there, including the tube's own capacitance. Forward power peaks when nothing is left over, which is why you peak FWD with TUNE. It barely changes the plate's parallel resistance, so it hardly moves the TRI.</li>
+    <li><strong>The presets</strong> in Table 4-1 put both capacitors near the right values for a 50 Ω load. A real antenna is not exactly 50 Ω, so the final settings differ a little from the table. That is why you finish by peaking FWD and centering the TRI, not by trusting the numbers.</li>
+  </ul>
+
+  <h2 id="harmonics">7. The other job: filtering harmonics</h2>
+  <p>The tube's plate current is not a pure sine wave. It also contains <strong>harmonics</strong>: energy at two, three and more times the operating frequency, which must not reach the antenna. A Pi-L has coils in series and capacitors to ground, so it passes low frequencies and blocks high ones: it is a <strong>low-pass filter</strong> as well as a matching network. Only the frequency it is tuned for passes efficiently.</p>
+  <figure>
+    <h3>Figure 4. How much the tuned network lets through, by frequency</h3>
+    <svg class="plot" id="harmPlot" role="img" aria-label="Power reaching the load relative to the operating frequency, falling steeply at the harmonics"></svg>
+    <figcaption>Power reaching a 50 Ω load for the same plate current, relative to the operating frequency, with the dials of Figure 3 (change the band there). Dots mark the 2nd to 5th harmonics. This is the network's filtering alone, with the trainer's placeholder parts. What actually comes out also depends on how strong the tube's harmonics are to begin with. The manual specifies harmonic output better than 50 dB below rated output for the real amplifier (Manual §6.1e).</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><strong>Back to practice:</strong> open the trainer's <a href="./">Inside the amplifier</a> card while you tune. The schematic there shows the live capacitor values, and the Smith chart shows where the plate load is.</p>
+  </div>
+
+  <footer>
+    <p>Sources: ACOM 1010 User's Manual (July 2023), cited by section; ACOM is not affiliated with this trainer. Component values are the trainer model's placeholders (see the model parameters table in the trainer).</p>
+    <p>Tutorials: <a href="smith-chart.html">The Smith chart</a> · <a href="pi-network.html">The Pi network</a> · <a href="faults.html">Faults and trips</a></p>
+    <p>Part of the <a href="./">ACOM 1010 Trainer</a> of the University of Scranton Amateur Radio Club, W3USR. Source and licenses: <a href="https://github.com/w3usr/amp-trainer">github.com/w3usr/amp-trainer</a>.</p>
+    <p>Drafted with AI assistance (Claude); pending review by Nathaniel A. Frissell, W2NAF.</p>
+  </footer>
+</main>
+
+<script src="model.js"></script>
+<script src="tutorial.js"></script>
+<script>
+(() => {
+  const { M, $, mk, cx, mag, gamma, num, ohm, fmtZ, fmtC, fmtL, P, smithGrid, walk, delivered, parallelR, setTri, plot } = Tut;
+
+  // ---------- Figure 1: reactance against frequency ----------
+  const L20 = M.POSITIONS[4].Lp, C20 = M.tuneC(M.POSITIONS[4], M.preset(14175).tune) + M.V('Cout');
+  const XL = (f) => 2 * Math.PI * f * 1e6 * L20, XC = (f) => 1 / (2 * Math.PI * f * 1e6 * C20);
+  document.querySelector('#reactPlot').previousElementSibling.innerHTML = `<span style="--c:var(--ind)">Coil, ${fmtL(L20)}</span><span style="--c:var(--cap)">Capacitor, ${fmtC(C20)}</span>`;
+  function drawReact() {
+    const fs = []; for (let i = 0; i <= 120; i++) fs.push(1.8 * Math.pow(30 / 1.8, i / 120));
+    plot($('reactPlot'), {
+      x: { min: 1.8, max: 30, log: true, ticks: [1.8, 3.5, 7, 14, 30], fmt: (v) => v + '', title: 'MHz' },
+      y: { min: 10, max: 3000, log: true, ticks: [10, 30, 100, 300, 1000, 3000], fmt: (v) => v >= 1000 ? v / 1000 + 'k' : v + '', title: 'Reactance, Ω' },
+      series: [{ cls: 'ind', pts: fs.map((f) => [f, XL(f)]) }, { cls: 'cap', pts: fs.map((f) => [f, XC(f)]) }],
+      refs: [{ x: 14.175 }],
+      labels: [{ x: 28, y: XL(28), text: 'coil', anchor: 'end', dy: -10 }, { x: 28, y: XC(28), text: 'capacitor', anchor: 'end', dy: 18 }],
+      tip: (f) => `<b>${num(f, 2)} MHz</b><br>coil ${num(XL(f))} Ω · capacitor ${num(XC(f))} Ω`,
+    });
+  }
+
+  // ---------- Figure 3: the walk through the network ----------
+  const sel = $('band');
+  M.BANDS.forEach((b, i) => { const o = document.createElement('option'); o.value = i; o.textContent = `${b.id} m, ${num((b.lo + b.hi) / 2000, 3)} MHz`; sel.appendChild(o); });
+  sel.value = M.BANDS.findIndex((b) => b.id === '20');
+  const svgW = $('smithW'), Z0 = 340;
+  const layerW = smithGrid(svgW, { r: [0.2, 0.5, 1, 2, 5], g: [0.2, 0.5, 1, 2, 5] });
+  const sch = $('sch');
+  sch.innerHTML = `
+    <text class="t" x="6" y="22">Tube plate</text>
+    <path class="w" d="M36 60 H80"/><circle cx="36" cy="60" r="4" fill="currentColor" style="color:var(--ink)"/>
+    <path class="w" d="M80 60 V98"/><path class="cap" d="M62 98 H98 M62 108 H98"/><path class="w" d="M80 108 V150"/>
+    <path class="w" d="M80 60 H150"/><path class="ind" d="M150 60 q9 -15 18 0 q9 -15 18 0 q9 -15 18 0 q9 -15 18 0"/><path class="w" d="M222 60 H290"/>
+    <path class="w" d="M290 60 V98"/><path class="cap" d="M272 98 H308 M272 108 H308"/><path class="w" d="M290 108 V150"/>
+    <path class="w" d="M290 60 H340"/><path class="ind" d="M340 60 q8 -13 16 0 q8 -13 16 0 q8 -13 16 0"/><path class="w" d="M388 60 H470"/>
+    <path class="w" d="M470 60 V88"/><rect x="458" y="88" width="24" height="40" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink)"/><path class="w" d="M470 128 V150"/>
+    <path class="w" d="M50 150 H500"/>
+    <text class="t tc" x="104" y="104">TUNE</text><text class="v" id="sCp" x="104" y="122"></text>
+    <text class="t tn" x="170" y="34">Lp</text><text class="v" id="sLp" x="150" y="84"></text>
+    <text class="t tc" x="314" y="104">LOAD</text><text class="v" id="sCL" x="314" y="122"></text>
+    <text class="t tn" x="356" y="34">LL</text><text class="v" id="sLL" x="340" y="84"></text>
+    <text class="t" x="490" y="104">ANT</text><text class="v" x="490" y="122">50 Ω</text>
+    ${[['3·P', 80], ['1·2', 290], ['A', 470]].map(([n, x]) => `<rect class="node" x="${x - 17}" y="51" width="34" height="18" rx="9"/><text class="nodelbl" x="${x}" y="64" text-anchor="middle">${n}</text>`).join('')}
+    <text class="v" x="20" y="178">A antenna · 1 into LL · 2 with LOAD added</text>
+    <text class="v" x="20" y="194">3 into Lp · P with TUNE added (the plate)</text>`;
+  const NAMES = { A: 'A · antenna', 1: '1 · into LL', 2: '2 · with LOAD', 3: '3 · into Lp', P: 'P · with TUNE (plate)' };
+  let state = null;
+  function render() {
+    const b = M.BANDS[+sel.value], kHz = Math.round((b.lo + b.hi) / 2 / 5) * 5, f = kHz * 1e3;
+    const tune = +$('tune').value, load = +$('load').value;
+    $('tuneOut').textContent = tune.toFixed(1); $('loadOut').textContent = load.toFixed(1);
+    $('bandSw').textContent = `BAND ${M.POSITIONS[b.pos].label}`;
+    const w = walk(b.pos, f, tune, load, cx(50));
+    $('sCp').textContent = `${fmtC(w.Ct)} + 11 pF`; $('sLp').textContent = fmtL(w.Lp); $('sCL').textContent = fmtC(w.CL); $('sLL').textContent = fmtL(w.LL);
+    layerW.innerHTML = '';
+    for (const s of w.segs) mk('polyline', { class: 'seg ' + s.kind, points: s.pts.map((Z) => P(gamma(Z, Z0)).map((v) => v.toFixed(4)).join(',')).join(' ') }, layerW);
+    for (const [n, Z] of Object.entries(w.nodes)) {
+      const [x, y] = P(gamma(Z, Z0));
+      mk('circle', { cx: x, cy: y, r: 0.05, class: 'node' }, layerW);
+      const t = mk('text', { x, y: y + 0.022, 'text-anchor': 'middle', class: 'nodelbl' }, layerW); t.textContent = n;
+    }
+    $('nodes').innerHTML = ['A', '1', '2', '3', 'P'].map((n) => `<tr><td>${NAMES[n]}</td><td class="num">${fmtZ(w.nodes[n])}</td><td class="num">${num(parallelR(w.nodes[n]))} Ω</td></tr>`).join('');
+    const r = M.solve({ pos: b.pos, f, tune, load, ZL: cx(50), drive: 15, rtty: false });
+    setTri($('tri'), r.tri);
+    state = { b, f, tune, load };
+    drawHarm();
+  }
+
+  // ---------- Figure 4: the network's filtering ----------
+  function drawHarm() {
+    if (!state) return;
+    const { b, f, tune, load } = state;
+    const p0 = delivered(b.pos, f, tune, load, cx(50));
+    const dB = (k) => 10 * Math.log10(delivered(b.pos, f * k, tune, load, cx(50)) / p0);
+    const ks = []; for (let i = 0; i <= 220; i++) ks.push(0.5 + 5 * i / 220);
+    const marks = [2, 3, 4, 5].map((k) => ({ x: k, y: dB(k) }));
+    plot($('harmPlot'), {
+      x: { min: 0.5, max: 5.5, ticks: [1, 2, 3, 4, 5], fmt: (v) => v === 1 ? `${num(f / 1e6, 1)} MHz` : `${v}×`, title: 'frequency' },
+      y: { min: -100, max: 10, ticks: [0, -20, -40, -60, -80, -100], fmt: (v) => Tut.minus(v), title: 'dB' },
+      series: [{ cls: 'one', pts: ks.map((k) => [k, dB(k)]) }],
+      marks,
+      labels: marks.map((m) => ({ x: m.x, y: m.y, text: `${Tut.minus(num(m.y))} dB`, anchor: 'middle', dy: -12 })),
+      tip: (k) => `<b>${num(f * k / 1e6, 2)} MHz</b> (${num(k, 2)}× the operating frequency)<br>${Tut.minus(num(dB(k), 1))} dB`,
+    });
+  }
+
+  const setDials = (t, l) => { $('tune').value = t.toFixed(1); $('load').value = l.toFixed(1); render(); };
+  const presetOf = () => { const b = M.BANDS[+sel.value]; return M.preset(Math.round((b.lo + b.hi) / 2 / 5) * 5); };
+  const bestOf = () => { const b = M.BANDS[+sel.value], kHz = Math.round((b.lo + b.hi) / 2 / 5) * 5; return M.bestDials(b.pos, kHz * 1e3, cx(50)); };
+  sel.addEventListener('change', () => { const p = presetOf(); setDials(p.tune, p.load); });
+  $('tune').addEventListener('input', render); $('load').addEventListener('input', render);
+  $('toPreset').onclick = () => { const p = presetOf(); setDials(p.tune, p.load); };
+  $('toBest').onclick = () => { const p = bestOf(); setDials(p.tune, p.load); };
+  const p = bestOf(); setDials(p.tune, p.load);
+  drawReact();
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { drawReact(); drawHarm(); }, 150); });
+})();
+</script>
+</body>
+</html>
