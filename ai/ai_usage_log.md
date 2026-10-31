@@ -104,4 +104,4 @@ carries the actual running model ID.
 - **Nature of Contribution**: Draft (tutorial text). Table values computed from
   SWR = (1+|Γ|)/(1−|Γ|) and checked against the manual's 2.5:1 example (§4.5a).
 - **Human Review Status**: Pending review
-- **Git Hash**: [filled in after committing]
+- **Git Hash**: bdbd7b4 (PR w3usr/amp-trainer#5)
